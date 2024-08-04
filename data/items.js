@@ -1,0 +1,49 @@
+export const items = [
+  {
+    image: 'https://picsum.photos/id/100/220/140',
+    name: 'unusual',
+    description:'mice pie wing sea garden while trace appropriate importance whether limited bus ',
+    item_code: '198',
+    price:'552',
+    discount_price:'400'
+  },
+  {
+    image: 'https://picsum.photos/id/101/220/140',
+    name: 'president',
+    description:'eleven fewer together luck radio dream stand accurate love seldom creature mass ',
+    item_code: '117',
+    price:'1165',
+    discount_price:'700'
+  },
+  {
+    image: 'https://picsum.photos/id/102/220/140',
+    name: 'arrangement',
+    item_code: '147',
+    price:'208',
+    discount_price:'100'
+  },
+  {
+    image: 'https://picsum.photos/id/103/220/140',
+    name: 'teeth',
+    description:'labor game same other five steady electric today belong globe between doll ',
+    item_code: '165',
+    price:'269',
+    discount_price:'170'
+  },
+  {
+    image: 'https://picsum.photos/id/104/220/140',
+    name: 'putting',
+    description:'disease top glass news depth own diameter key reason cloud her television ',
+    item_code: '164',
+    price:'1122',
+    discount_price:'800'
+  },
+  {
+    image: 'https://picsum.photos/id/106/220/140',
+    name: 'us',
+    description:'shadow swung pitch wing somehow pan theory please above hall climate supply ',
+    item_code: '141',
+    price:'1249',
+    discount_price:'400'
+  },
+ ]

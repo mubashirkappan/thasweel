@@ -1,0 +1,10 @@
+{
+    "ignorePatterns": [
+      "**/*.json",
+      "**/*.svg"
+    ],
+    "rules": {
+      "no-undef": "warn"
+    },
+    "extends": "@antfu"
+  }
