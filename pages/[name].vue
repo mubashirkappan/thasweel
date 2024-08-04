@@ -116,7 +116,10 @@ function getData() {
 watch([selectedCategory, selectedKeyword], () => {
   fetchItems()
 })
-onMounted(getData)
+onMounted(
+  getData,
+  cartStore.$reset(),
+)
 </script>
 
 <template>
@@ -151,14 +154,14 @@ onMounted(getData)
           </div>
         </div>
       </CoreListing>
-      <div v-if="cartStore.productCount > 0" class="fixed z-[100] bottom-[20px] left-0  w-full  ">
-        <div class="max-container w-full p-4 text-white bg-primary mx-auto  bg-primary shadow-xl rounded-lg flex items-center justify-between ">
+      <div v-if="cartStore.productCount > 0" class="fixed z-[100] bottom-[20px] left-0  w-full  flex justify-center ">
+        <div class="max-container !w-[50%]  mr-auto p-4 text-white bg-secondary-500 mx-auto   shadow-xl rounded-lg flex items-center justify-between ">
           <div>
-           Proceed with the order of {{ cartStore.productCount }} items
+            Proceed with the order of {{ cartStore.productCount }} items
           </div>
-          <UButton variant="outline" color="white">
+          <ModalLeadGen variant="outline" :custom="true"> 
             CLick to Proceed
-          </UButton>
+          </ModalLeadGen>
         </div>
       </div>
     </template>

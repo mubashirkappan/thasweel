@@ -5,13 +5,8 @@ const props = defineProps({
   data: Object,
   shopId: Number,
 })
-// Adjust the path as needed
 
 const cartStore = useCartStore()
-// const authStatus = useAuth()
-// const { loggedIn, loginPop, token, ItemsCount } = storeToRefs(authStatus)
-
-// const config = useRuntimeConfig()
 const loading = ref(false)
 const toast = useToast()
 const count = ref({})
@@ -22,46 +17,26 @@ onMounted(() => {
     return acc
   }, {})
 })
-const itemNames = computed(() => cartStore.itemCounts)
-function submit(item, count) {
+function submit(itemName, quantity) {
   loading.value = true
-  if (count < 1) {
-    toast.add({ title: 'cart item need to be greater than or equal to 1', color: 'red', icon: 'i-heroicons-x-circle' })
+  if (quantity < 1) {
+    toast.add({ title: 'Cart item count must be greater than or equal to 1', color: 'red', icon: 'i-heroicons-x-circle' })
     loading.value = false
     return
   }
-  cartStore.addItem(item, count)
-  toast.add({ title: "Items added to cart", color: 'green', icon: 'i-heroicons-check-badge' })
+
+  const existingItem = cartStore.cartItems.find(i => i.name === itemName)
+
+  if (existingItem) {
+    if (existingItem.count === quantity) {
+      toast.add({ title: 'Item already existing', color: 'red', icon: 'i-heroicons-x-circle' })
+      loading.value = false
+      return
+    }
+  }
+  cartStore.addItem(itemName, quantity)
+  toast.add({ title: 'Items added to cart', color: 'green', icon: 'i-heroicons-check-badge' })
   loading.value = false
-
-  // if (!loggedIn.value) {
-  //   loginPop.value = true
-  //   loading.value = false
-  //   return
-  // }
-
-  // $fetch(`${config.public.apiBaseUrl}/add-to-cart`, {
-  //   headers: {
-  //     Authorization: `Bearer ${token.value}`,
-  //   },
-  //   body: {
-  //     item_id: itemId,
-  //     shop_id: props.shopId,
-  //     count,
-  //   },
-  //   method: 'POST',
-  // })
-  //   .then((response) => {
-  //     ItemsCount.value = response.data.cartItemCountNotPurchased
-  //     toast.add({ title: `${response.message}
-  //     to `, color: 'green', icon: 'i-heroicons-check-badge' })
-  //   })
-  //   .catch(({ data }) => {
-  //     toast.add({ title: data.message, color: 'red', icon: 'i-heroicons-x-circle' })
-  //   })
-  //   .finally(() => {
-  //     loading.value = false
-  //   })
 }
 </script>
 
