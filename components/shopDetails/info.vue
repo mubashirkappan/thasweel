@@ -28,7 +28,7 @@ defineProps({
       </div>
       <div v-if="item.delivery === 1" class="flex justify-between w-full gap-10 text-sm md:text-lg max-lg:text-center ">
         <div v-if="item.free_delivery_above !== 0">
-          Free Delivery Above <span class="font-semibold text-primary">₹{{ item.free_delivery_above }}/- </span>
+          Free Delivery Above <span class="font-semibold text-primary"><span class="text-sm">SAR</span>{{ item.free_delivery_above }}/- </span>
         </div>
         <div v-else>
           No <span class="font-semibold text-primary">Minimum </span> Order Limit

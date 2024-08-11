@@ -6,7 +6,9 @@ interface CartItem {
 }
 
 export const useCartStore = defineStore('cartStore', {
-  persist: true,
+  persist: {
+    storage: persistedState.localStorage,
+  },
   state: (): { cartItems: CartItem[] } => ({
     cartItems: [],  // Array to hold items and their counts
   }),
@@ -45,4 +47,5 @@ export const useCartStore = defineStore('cartStore', {
       return this.cartItems.length;
     },
   },
+
 });

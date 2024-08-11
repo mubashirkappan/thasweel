@@ -18,10 +18,10 @@ defineProps({
           </div>
           <div class="flex gap-1 items-center">
             <div class="text-primary font-semibold text-3xl">
-              ₹{{ item. discount_price }}
+              <span class="text-sm">SAR</span>{{ item. discount_price }}
             </div>
             <div class="line-through text-[#adadad] font-medium text-sm">
-              ₹{{ item.price }}
+              <span class="text-xs">SAR </span>{{ item.price }}
             </div>
           </div>
         </div>
@@ -34,10 +34,10 @@ defineProps({
 
       <div class="flex gap-1 items-center">
         <div class="bg-primary font-semibold text-3xl">
-          ₹{{ item. discount_price }}
+          <span class="text-sm">SAR</span>{{ item. discount_price }}
         </div>
         <div class="line-through text-[#adadad] font-medium text-sm">
-          ₹{{ item.price }}
+          <span class="text-xs">SAR </span>{{ item.price }}
         </div>
       </div>
       <CoreCounter />

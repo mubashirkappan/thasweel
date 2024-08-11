@@ -35,6 +35,8 @@ function submit(itemName, quantity) {
     }
   }
   cartStore.addItem(itemName, quantity)
+  if (existingItem)
+    toast.add({ title: 'Items count Updated', color: 'green', icon: 'i-heroicons-check-badge' })
   toast.add({ title: 'Items added to cart', color: 'green', icon: 'i-heroicons-check-badge' })
   loading.value = false
 }
@@ -60,10 +62,10 @@ function submit(itemName, quantity) {
           <CoreCounter v-model="count[key]" />
           <div class="flex gap-1 items-center">
             <div class="text-primary font-semibold text-3xl">
-              ₹{{ item.db_price }}
+              <span class="text-sm">SAR</span>{{ item.db_price }}
             </div>
             <div class="line-through text-[#adadad] font-medium text-sm">
-              ₹{{ item.price }}
+              <span class="text-xs">SAR </span>{{ item.price }}
             </div>
           </div>
         </div>

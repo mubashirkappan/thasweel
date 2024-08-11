@@ -117,8 +117,7 @@ watch([selectedCategory, selectedKeyword], () => {
   fetchItems()
 })
 onMounted(
-  getData,
-  cartStore.$reset(),
+  getData
 )
 </script>
 
@@ -154,12 +153,12 @@ onMounted(
           </div>
         </div>
       </CoreListing>
-      <div v-if="cartStore.productCount > 0" class="fixed z-[100] bottom-[20px] left-0  w-full  flex justify-center ">
-        <div class="max-container !w-[50%]  mr-auto p-4 text-white bg-secondary-500 mx-auto   shadow-xl rounded-lg flex items-center justify-between ">
+      <div v-if="cartStore.productCount > 0" class="fixed z-[40] bottom-[20px] left-0  w-full  flex justify-center ">
+        <div class="max-container mx-5 !w-full  md:!w-[50%]   p-4 text-white bg-secondary-500 md:mx-auto   shadow-xl rounded-lg flex items-center justify-between ">
           <div>
             Proceed with the order of {{ cartStore.productCount }} items
           </div>
-          <ModalLeadGen variant="outline" :custom="true"> 
+          <ModalLeadGen variant="solid" :custom="true"> 
             CLick to Proceed
           </ModalLeadGen>
         </div>

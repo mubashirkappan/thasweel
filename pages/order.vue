@@ -143,7 +143,7 @@ onMounted(() => {
                 <div class="flex flex-col gap-3 pb-2">
                   <div class="flex gap-1 items-center">
                     <div class="text-primary font-semibold text-3xl">
-                      ₹{{ cartItem.dibi_price }}
+                      <span class="text-sm">SAR</span>{{ cartItem.dibi_price }}
                     </div>
                     <div class=" text-[#adadad] font-medium text-xl">
                       x{{ cartItem.count }} = {{ cartItem.dibi_price * cartItem.count }}
