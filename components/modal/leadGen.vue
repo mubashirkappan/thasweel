@@ -33,7 +33,7 @@ const schema = z
         message: 'Phone number must be exactly 10 digits!',
       }),
     name: z.string().min(2, 'Must be at least 2 characters'),
-    address: z.string(),
+    address: z.optional(),
   })
 
 // const config = useRuntimeConfig()
