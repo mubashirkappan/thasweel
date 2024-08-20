@@ -1,6 +1,7 @@
 <script setup>
 import { z } from 'zod'
 import { storeToRefs } from 'pinia'
+import { useCartStore } from '/composables/cartData'
 
 const props = defineProps({
   custom: {
@@ -11,18 +12,15 @@ const props = defineProps({
     type: String,
   },
 })
+const cartStore = useCartStore()
+
 const authStatus = useAuth()
 const { signPop, loginPop } = storeToRefs(authStatus)
 
 const state = reactive({
   phoneNumber: undefined,
-  email: undefined,
   name: undefined,
-  referral: undefined,
-  password: undefined,
-  confirm_password: undefined,
-  is_owner: false,
-  isChecked: false,
+  address: undefined,
 })
 
 const schema = z
@@ -35,55 +33,34 @@ const schema = z
         message: 'Phone number must be exactly 10 digits!',
       }),
     name: z.string().min(2, 'Must be at least 2 characters'),
-    address: z.string,
-  })
-  .refine(data => data.password === data.confirm_password, {
-    message: 'Passwords don\'t match',
-    path: ['confirm_password'], // path of error
+    address: z.string(),
   })
 
-// function navigateToLogin() {
-//   window.location.href = '/?mode=register'
-// }
-
-const config = useRuntimeConfig()
+// const config = useRuntimeConfig()
 const loading = ref(false)
-const toast = useToast()
-const showPassword = ref(false)
+// const toast = useToast()
 
-function submit() {
+async function submit() {
   loading.value = true
-  $fetch(`${config.public.apiBaseUrl}/customer-register`, {
-    headers: {
-      accept: 'application/json',
-    },
-    body: {
-      phonenumber: state.phoneNumber,
-      email: state.email,
-      name: state.name,
-      password: state.password,
-      is_owner: state.is_owner,
-      reffered_by: state.referral,
-      password_confirmation: state.confirm_password,
-      method: 'normal',
-    },
-    method: 'POST',
-  })
-    .then((response) => {
-      toast.add({ title: response.message, icon: 'i-heroicons-check-badge' })
-      signPop.value = false
-    })
-    .catch(({ data }) => {
-      toast.add({ title: data.message, color: 'red', icon: 'i-heroicons-x-circle' })
-    })
-    .finally(() => {
-      loading.value = false
-    })
-}
+  const body = {
+    phonenumber: state.phoneNumber,
+    name: state.name,
+    address: state.address,
+    items: cartStore.itemsWithPrices,
+  }
+  console.log(body)
 
-const route = useRoute()
-if (route.query.code)
-  state.referral = route.query.code
+  try {
+    await navigator.clipboard.writeText(JSON.stringify(body))
+    console.log('Copied to clipboard successfully!')
+  }
+  catch (err) {
+    console.error('Failed to copy to clipboard: ', err)
+  }
+  finally {
+    loading.value = false
+  }
+}
 
 function handleSlotClick() {
   loginPop.value = false
@@ -103,8 +80,8 @@ function handleSlotClick() {
     <slot />
   </UButton>
 
-  <UModal v-model="signPop">
-    <div class="relative pt-0 p-6">
+  <UModal v-model="signPop" :ui="{ width: 'sm:max-w-[1000px]' }">
+    <div class="relative  p-4">
       <UButton
         color="gray"
         variant="ghost"
@@ -112,26 +89,48 @@ function handleSlotClick() {
         class="-my-1 absolute top-2 right-1"
         @click="signPop = false"
       />
-      <div class="py-2 text-3xl text-center font-bold">
-        Register Now
+      <div class="py-2  text-xl md:text-3xl text-center font-bold">
+        Check Out
       </div>
-      <UForm :state="state" class="space-y-4" :schema="schema" @submit="submit">
-        <UFormGroup label="Phone Number" required name="phoneNumber">
-          <UInput v-model="state.phoneNumber" />
-        </UFormGroup>
-        <UFormGroup label="Name" required name="name">
-          <UInput v-model="state.name" />
-        </UFormGroup>
-      
-       
-      </UForm>
-      <div class="text-sm font-semibold flex justify-start max-md:flex-col items-center pt-4 gap-x-3">
-        Already registered
-        <ModalLogin :custom="true" variant="ghost">
-          <span class="text-primary">
-            Please Log In
-          </span>
-        </ModalLogin>
+      <div class="grid md:grid-cols-2 gap-3 md:gap-10">
+        <div class="border border-red-500  rounded-xl p-4 md:my-3">
+          <div class=" text-lg md:text-xl font-semibold ">
+            Items List
+          </div>
+          <div class="flex flex-col max-h-[200px] md:max-h-[calc(100%-50px)] md:h-full overflow-scroll w-full py-3">
+            <div v-for="item in cartStore.itemsWithPrices" :key="item" class="flex justify-between w-full">
+              <span>
+                {{ item.name }}
+              </span>
+              <div>
+                {{ item.quantity }} x {{ item.pricePerItem }}={{ item.totalPrice }}
+              </div>
+            </div>
+          </div>
+          <UDivider size="lg" type="dotted" />
+          <div class="flex justify-between w-full">
+            <span>
+              Total
+            </span>
+            <div>
+              {{ cartStore.totalAmount }}
+            </div>
+          </div>
+        </div>
+        <div class="border border-red-500  rounded-xl p-4 md:my-3 flex flex-col items-center justify-center">
+          <UForm :state="state" class="space-y-4 flex items-center justify-center flex-col w-full " :schema="schema" @submit="submit">
+            <UFormGroup label="Phone Number" required name="phoneNumber" class="w-full">
+              <UInput v-model="state.phoneNumber" />
+            </UFormGroup>
+            <UFormGroup label="Name" required name="name" class="w-full">
+              <UInput v-model="state.name" />
+            </UFormGroup>
+            <UFormGroup label="Address" name="address" class="w-full">
+              <UInput v-model="state.address" />
+            </UFormGroup>
+            <UButton label="Buy Now and Send Message" size="xl" class="self-end" type="submit" />
+          </UForm>
+        </div>
       </div>
     </div>
   </UModal>

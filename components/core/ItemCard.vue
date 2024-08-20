@@ -4,6 +4,7 @@ import { useCartStore } from '/composables/cartData'
 const props = defineProps({
   data: Object,
   shopId: Number,
+
 })
 
 const cartStore = useCartStore()
@@ -17,7 +18,7 @@ onMounted(() => {
     return acc
   }, {})
 })
-function submit(itemName, quantity) {
+function submit(itemName, quantity, price) {
   loading.value = true
   if (quantity < 1) {
     toast.add({ title: 'Cart item count must be greater than or equal to 1', color: 'red', icon: 'i-heroicons-x-circle' })
@@ -34,7 +35,7 @@ function submit(itemName, quantity) {
       return
     }
   }
-  cartStore.addItem(itemName, quantity)
+  cartStore.addItem(itemName, quantity, price)
   if (existingItem)
     toast.add({ title: 'Items count Updated', color: 'green', icon: 'i-heroicons-check-badge' })
   toast.add({ title: 'Items added to cart', color: 'green', icon: 'i-heroicons-check-badge' })
@@ -74,7 +75,7 @@ function submit(itemName, quantity) {
         :loading="loading"
         size="lg"
         class="flex items-center justify-center"
-        @click="submit(item.name, count[key])"
+        @click="submit(item.name, count[key], item.db_price)"
       >
         <Icon name="lucide:shopping-cart" />
         Add to cart
