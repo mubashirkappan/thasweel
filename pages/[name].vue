@@ -158,7 +158,7 @@ onMounted(
           <div>
             Proceed with the order of {{ cartStore.productCount }} items
           </div>
-          <ModalLeadGen variant="solid" :custom="true"> 
+          <ModalLeadGen :shop-details="shopDetail" variant="solid" :custom="true"> 
             CLick to Proceed
           </ModalLeadGen>
         </div>

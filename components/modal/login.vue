@@ -99,7 +99,6 @@ function handleSlotClick() {
         <UFormGroup label="Phone Number/ Email Address" name="identifier" required>
           <UInput v-model="state.identifier" />
         </UFormGroup>
-        <div />
         <UFormGroup label="Password" name="password" required>
           <div class="relative">
             <UInput v-model="state.password" :type="showPassword ? 'text' : 'password'" />
@@ -118,14 +117,6 @@ function handleSlotClick() {
           Log In
         </UButton>
       </UForm>
-      <div class="text-sm font-semibold flex justify-start max-md:flex-col items-center pt-4 gap-x-3">
-        Don't have an account?
-        <ModalRegister :custom="true" variant="ghost">
-          <span class="text-primary">
-            Create an account
-          </span>
-        </ModalRegister>
-      </div>
     </div>
   </UModal>
 </template>

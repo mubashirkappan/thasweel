@@ -11,7 +11,13 @@ const props = defineProps({
   variant: {
     type: String,
   },
+  shopDetails: {
+    type: Object,
+  },
 })
+
+const unmaskedPhone = ref('')
+
 const cartStore = useCartStore()
 
 const authStatus = useAuth()
@@ -20,20 +26,14 @@ const { signPop, loginPop } = storeToRefs(authStatus)
 const state = reactive({
   phoneNumber: undefined,
   name: undefined,
-  address: undefined,
+  address: null,
 })
 
 const schema = z
   .object({
-    phoneNumber: z.string()
-      .refine(val => /^\d+$/.test(val), {
-        message: 'Phone number should contain only digits!',
-      })
-      .refine(val => val.length === 10, {
-        message: 'Phone number must be exactly 10 digits!',
-      }),
+    phoneNumber: z.string(),
     name: z.string().min(2, 'Must be at least 2 characters'),
-    address: z.optional(),
+    address: z.string().nullish(),
   })
 
 // const config = useRuntimeConfig()
@@ -43,16 +43,18 @@ const loading = ref(false)
 async function submit() {
   loading.value = true
   const body = {
-    phonenumber: state.phoneNumber,
+    phoneNumber: state.phoneNumber,
     name: state.name,
     address: state.address,
     items: cartStore.itemsWithPrices,
+    price: cartStore.totalAmount,
   }
-  console.log(body)
-
   try {
     await navigator.clipboard.writeText(JSON.stringify(body))
-    console.log('Copied to clipboard successfully!')
+    const message = generateMessage(body)
+    cartStore.$reset()
+    const whatsappLink = `https://wa.me/${props.shopDetails.phone}?text=${encodeURIComponent(message)}`
+    window.open(whatsappLink, '_blank')
   }
   catch (err) {
     console.error('Failed to copy to clipboard: ', err)
@@ -61,6 +63,17 @@ async function submit() {
     loading.value = false
   }
 }
+
+function generateMessage(data) {
+  let message = `Hi, I would like to place the following order::\n\n`
+  data.items.forEach((item, index) => {
+    message += `${index + 1}. ${item.name}\n   - Quantity: ${item.quantity}\n   - Price (${item.quantity}*${item.pricePerItem}): ${item.totalPrice}\n\n`
+  })
+  message += `Total Price: ${data.price}\n \n`
+  message += 'Please confirm the order and let me know the expected delivery time. Thank you!'
+  return message
+}
+defineExpose({ unmaskedPhone })
 
 function handleSlotClick() {
   loginPop.value = false
@@ -120,7 +133,7 @@ function handleSlotClick() {
         <div class="border border-red-500  rounded-xl p-4 md:my-3 flex flex-col items-center justify-center">
           <UForm :state="state" class="space-y-4 flex items-center justify-center flex-col w-full " :schema="schema" @submit="submit">
             <UFormGroup label="Phone Number" required name="phoneNumber" class="w-full">
-              <UInput v-model="state.phoneNumber" />
+              <UInput v-model="state.phoneNumber" v-maska:unmaskedPhone.unmasked="'+966 ##-###-####'" />
             </UFormGroup>
             <UFormGroup label="Name" required name="name" class="w-full">
               <UInput v-model="state.name" />

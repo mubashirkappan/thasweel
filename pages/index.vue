@@ -44,7 +44,7 @@ onMounted(getData)
 <template>
   <ShopHero />
   <!-- <ShopCategory /> -->
-  <CoreListing title="Popular Nearby Shops" :search="search">
+  <!-- <CoreListing title="Popular Nearby Shops" :search="search">
     <div v-if="shopList.length !== 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 py-4 mt-3">
       <CoreShopCard :data="shopList" />
     </div>
@@ -55,5 +55,5 @@ onMounted(getData)
       <Icon name="i-mdi-error" class="text-primary" />
       No Data Found
     </div>
-  </CoreListing>
+  </CoreListing> -->
 </template>

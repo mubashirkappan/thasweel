@@ -48,7 +48,7 @@ onMounted(() => {
       </div>
     </div>
   </div>
-  <div class="main-container py-10">
+  <div class="main-container py-10 min-h-[80vh] flex items-center justify-center">
     <div class="max-container">
       <div class="py-10 flex flex-col items-center justify-center gap-3">
         <img src="/img/avtr.png" alt="">
@@ -64,18 +64,6 @@ onMounted(() => {
             {{ fetchedData.phonenumber }}
           </div>
 
-          <div v-if="fetchedData.rewards" class="font-semibold text-lg pt-4">
-            <span>
-              Rewards Earned :
-            </span>
-            <span class="text-yellow-500 font-bold">
-              <Icon name="i-fa-solid-coins" />   {{ fetchedData.rewards }}
-            </span>
-            <br>
-            <ModalRefer :custom="true" variant="ghost">
-              Earn More? click Here
-            </ModalRefer>
-          </div>
         </div>
 
         <Icon
@@ -85,13 +73,6 @@ onMounted(() => {
         />
       </div>
       <div v-if="!loading" class="flex flex-col items-center justify-center gap-2">
-        <UButton class="w-full justify-center max-w-[300px]" size="xl" to="/order">
-          <Icon name="i-fluent-mdl2-text-document-settings" />
-          <div>
-            Pervious Orders
-          </div>
-        </UButton>
-
         <UButton v-if="fetchedData.is_owner === 1" class="w-full justify-center max-w-[300px]" size="xl" to="/shop-management">
           <Icon name="i-fluent-mdl2-text-document-settings" />
           <div>
