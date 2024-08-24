@@ -35,7 +35,7 @@ onMounted(() => {
 <template>
   <div class="main-container z-[100] bg-white shadow-black/10 shadow-xl" :class="hero ? 'fixed' : ''">
     <div
-      class="max-container relative after:h-[1px] after:absolute after:w-[200vw] after:bg-gray-300 after:bottom-0 after:left-0 after:hidden md:after:block"
+      class="max-container "
     >
       <div class="flex gap-3 items-center justify-between w-full py-2 md:py-4">
         <NuxtLink to="/">

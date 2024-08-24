@@ -79,6 +79,12 @@ onMounted(() => {
             Shop Settings
           </div>
         </UButton>
+        <UButton v-if="fetchedData.is_owner === 1" class="w-full justify-center max-w-[300px]" size="xl" to="/order-management">
+          <Icon name="i-fluent-mdl2-text-document-settings" />
+          <div>
+            Orders
+          </div>
+        </UButton>
       </div>
     </div>
   </div>

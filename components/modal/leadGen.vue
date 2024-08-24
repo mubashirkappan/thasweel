@@ -38,30 +38,41 @@ const schema = z
 
 // const config = useRuntimeConfig()
 const loading = ref(false)
-// const toast = useToast()
-
-async function submit() {
+const toast = useToast()
+const config = useRuntimeConfig()
+function submit() {
   loading.value = true
+
   const body = {
-    phoneNumber: state.phoneNumber,
+    phonenumber: unmaskedPhone.value,
     name: state.name,
-    address: state.address,
+    address: state.address || 'Nothing',
     items: cartStore.itemsWithPrices,
-    price: cartStore.totalAmount,
+    total_price: cartStore.totalAmount,
+    shop_id: props.shopDetails.id,
   }
-  try {
-    await navigator.clipboard.writeText(JSON.stringify(body))
-    const message = generateMessage(body)
-    cartStore.$reset()
-    const whatsappLink = `https://wa.me/${props.shopDetails.phone}?text=${encodeURIComponent(message)}`
-    window.open(whatsappLink, '_blank')
-  }
-  catch (err) {
-    console.error('Failed to copy to clipboard: ', err)
-  }
-  finally {
-    loading.value = false
-  }
+
+  $fetch(`${config.public.apiBaseUrl}/order`, {
+    method: 'POST',
+    body,
+  })
+    .then((response) => {
+      toast.add({ title: response.message, icon: 'i-heroicons-check-badge', color: 'green' })
+      const message = generateMessage(body)
+      setTimeout(() => {
+        const whatsappLink = `https://wa.me/${props.shopDetails.phone}?text=${encodeURIComponent(message)}`
+        window.open(whatsappLink, '_blank')
+        loading.value = false // Stop loading after the delay
+      }, 1000)
+    })
+    .catch((error) => {
+      console.error('Failed to submit order:', error) // Log the entire error object
+      const errorMessage = error?.data?.message || 'An unknown error occurred'
+      toast.add({ title: errorMessage, color: 'red', icon: 'i-heroicons-x-circle' })
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 
 function generateMessage(data) {
@@ -69,7 +80,7 @@ function generateMessage(data) {
   data.items.forEach((item, index) => {
     message += `${index + 1}. ${item.name}\n   - Quantity: ${item.quantity}\n   - Price (${item.quantity}*${item.pricePerItem}): ${item.totalPrice}\n\n`
   })
-  message += `Total Price: ${data.price}\n \n`
+  message += `Total Price: ${data.total_price}\n \n`
   message += 'Please confirm the order and let me know the expected delivery time. Thank you!'
   return message
 }
@@ -141,7 +152,7 @@ function handleSlotClick() {
             <UFormGroup label="Address" name="address" class="w-full">
               <UInput v-model="state.address" />
             </UFormGroup>
-            <UButton label="Buy Now and Send Message" size="xl" class="self-end" type="submit" />
+            <UButton label="Buy Now and Send Message" :loading size="xl" class="self-end" type="submit" />
           </UForm>
         </div>
       </div>

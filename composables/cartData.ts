@@ -18,18 +18,18 @@ export const useCartStore = defineStore('cartStore', {
       const existingItem = this.cartItems.find((i) => i.name === itemName);
 
       if (existingItem) {
-        existingItem.count = quantity;
-        existingItem.price = price;
+        existingItem.count = Number(quantity);
+        existingItem.price = Number(price);
       } else {
-        this.cartItems.push({ name: itemName, count: quantity, price });
+        this.cartItems.push({ name: itemName, count: Number(quantity), price: Number(price) });
       }
     },
     updateItem(itemName: string, quantity: number, price?: number) {
       const item = this.cartItems.find((i) => i.name === itemName);
       if (item) {
-        item.count = quantity;
+        item.count = Number(quantity);
         if (price !== undefined) {
-          item.price = price;
+          item.price = Number(price);
         }
       }
     },
@@ -54,16 +54,16 @@ export const useCartStore = defineStore('cartStore', {
     itemsWithPrices(): { name: string; pricePerItem: number; quantity: number; totalPrice: number }[] {
       return this.cartItems.map((item) => ({
         name: item.name,
-        pricePerItem: item.price,
+        pricePerItem: Math.round(Number(item.price)),  // Ensure pricePerItem is an integer
         quantity: item.count,
-        totalPrice: item.price * item.count,  // Calculate price * quantity
+        totalPrice: Math.round(Number(item.price)) * item.count,  // Calculate totalPrice using the integer pricePerItem
       }));
+    },
+    totalAmount(): number {
+      return this.cartItems.reduce((total, item) => total + item.count * Math.round(Number(item.price)), 0);
     },
     productCount(): number {
       return this.cartItems.length;
-    },
-    totalAmount(): number {
-      return this.cartItems.reduce((total, item) => total + item.count * item.price, 0);
     },
   },
 });

@@ -25,7 +25,6 @@ async function fetchShops(query) {
     if (!response.ok)
       throw new Error('Failed to list Shops')
     data = await response.json()
-    // console.log(`${config.public.apiBaseUrl}/shops?shop=${query}`)
     shopDetail.value = data.data[0]
     itemList.value = data.data[0].items
     categoryList.value = data.data[0].categorys
