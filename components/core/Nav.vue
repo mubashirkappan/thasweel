@@ -38,9 +38,9 @@ onMounted(() => {
       class="max-container "
     >
       <div class="flex gap-3 items-center justify-between w-full py-2 md:py-4">
-        <NuxtLink to="/">
+        <div>
           <img src="/img/logo.svg" class="max-w-[140px]" alt="">
-        </NuxtLink>
+        </div>
         <template v-if="route.path === '/'">
           <div v-if="!loggedIn" class="flex min-h-[40px] gap-3">
             <ModalLogin />
