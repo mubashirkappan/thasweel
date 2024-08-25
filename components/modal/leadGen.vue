@@ -59,6 +59,7 @@ function submit() {
     .then((response) => {
       toast.add({ title: response.message, icon: 'i-heroicons-check-badge', color: 'green' })
       const message = generateMessage(body)
+      cartStore.$reset()
       setTimeout(() => {
         const whatsappLink = `https://wa.me/${props.shopDetails.phone}?text=${encodeURIComponent(message)}`
         window.open(whatsappLink, '_blank')

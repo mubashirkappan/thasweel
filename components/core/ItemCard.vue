@@ -41,6 +41,14 @@ function submit(itemName, quantity, price) {
   toast.add({ title: 'Items added to cart', color: 'green', icon: 'i-heroicons-check-badge' })
   loading.value = false
 }
+function removeItem(itemName) {
+  cartStore.removeItem(itemName)
+  toast.add({ title: 'Item removed from cart', color: 'green', icon: 'i-heroicons-check-badge' })
+}
+
+function isInCart(itemName) {
+  return cartStore.cartItems.some(i => i.name === itemName)
+}
 </script>
 
 <template>
@@ -71,15 +79,37 @@ function submit(itemName, quantity, price) {
           </div>
         </div>
       </div>
+     
+      <div  v-if="isInCart(item.name)" class="grid grid-cols-6 gap-2">
+        <UButton
+          :loading="loading"
+          size="lg"
+          class="flex items-center justify-center w-full col-span-4"
+          @click="submit(item.name, count[key], item.db_price)"
+        >
+          <Icon name="lucide:shopping-cart" />
+          Add to cart
+        </UButton>
+        <UButton
+          size="lg"
+          variant="outline"
+          class="flex items-center justify-center w-full col-span-2"
+          @click="removeItem(item.name)"
+        >
+          <Icon name="lucide:trash" />
+          Delete
+        </UButton>
+      </div>
       <UButton
-        :loading="loading"
-        size="lg"
-        class="flex items-center justify-center"
-        @click="submit(item.name, count[key], item.db_price)"
-      >
-        <Icon name="lucide:shopping-cart" />
-        Add to cart
-      </UButton>
+      v-else
+          :loading="loading"
+          size="lg"
+          class="flex items-center justify-center w-full col-span-4"
+          @click="submit(item.name, count[key], item.db_price)"
+        >
+          <Icon name="lucide:shopping-cart" />
+          Add to cart
+        </UButton>
     </div>
   </div>
 </template>
