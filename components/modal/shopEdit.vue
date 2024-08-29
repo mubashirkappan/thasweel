@@ -37,7 +37,7 @@ watch(() => props.data, (newData) => {
   state.email = newData.email
   state.delivery = (newData.delivery === 1)
   state.km = newData.km
-  state.above_limit = newData.above_limit||0
+  state.above_limit = newData.above_limit || 0
   state.logo_name = null
   state.place_id = newData.place_id
   state.enc_id = newData.encrypt_id
@@ -45,24 +45,20 @@ watch(() => props.data, (newData) => {
   state.take_away = 1
 }, { immediate: true })
 
+const unmaskedPhone = ref('')
+
 const schema = z.object({
   name: z.string().min(2, 'Must be at least 2 characters'),
   username: z.string().min(2, 'Must be at least 2 characters').regex(/^\S*$/, 'Username cannot contain spaces'),
   address: z.string().min(2, 'Must be at least 2 characters'),
   landmark: z.string().optional(),
-  phoneNumber: z.string()
-    .refine(val => /^\d+$/.test(val), {
-      message: 'Phone number should contain only digits!',
-    })
-    .refine(val => val.length === 10, {
-      message: 'Phone number must be exactly 10 digits!',
-    }),
+  phoneNumber: z.string(),
   place_id: z.any(),
   email: z.preprocess(val => val === '' ? undefined : val, z.string().email('Invalid email')),
   logo_name: z.any().optional(),
   delivery: z.boolean(),
   above_limit: z.number(),
-  km: z.number(),  // take_away: z.boolean(),
+  km: z.number(), // take_away: z.boolean(),
 })
 
 const authStatus = useAuth()
@@ -103,6 +99,7 @@ function changeFile({ target }) {
 //       loading.value = false
 //     })
 // }
+defineExpose({ unmaskedPhone })
 
 async function submit() {
   const formData = new FormData()
@@ -111,7 +108,7 @@ async function submit() {
   formData.append('address', state.address)
   formData.append('landmark', state.landmark)
   formData.append('country_code', '+91')
-  formData.append('phone', state.phoneNumber)
+  formData.append('phone', Number(unmaskedPhone.value))
   formData.append('email', state.email)
   formData.append('logo', state.logo_name)
   formData.append('encrypted_id', state.enc_id)
@@ -179,13 +176,13 @@ onMounted(() => {
         Register Your Shop Now
       </div>
       <UForm :state="state" class="space-y-4" :schema="schema" @submit="submit">
-        <UFormGroup label="Shop Name" required name="name">
+        <!-- <UFormGroup label="Shop Name" required name="name">
           <UInput v-model="state.name" />
-        </UFormGroup>
+        </UFormGroup> -->
         <!-- <UFormGroup label="Shop Unique Name" disabled description="This will be used for your sharable Link" required name="username">
           <UInput v-model="state.username" disabled />
         </UFormGroup> -->
-        <UFormGroup label="Location" required name="location">
+        <!-- <UFormGroup label="Location" required name="location">
           <USelectMenu
             v-model="state.place_id"
             value-attribute="id"
@@ -199,11 +196,11 @@ onMounted(() => {
         <UFormGroup label="Landmark" name="landmark">
           <UInput v-model="state.landmark" />
         </UFormGroup>
-        <UFormGroup label="Phone Number" required name="phoneNumber">
-          <UInput v-model="state.phoneNumber" />
-        </UFormGroup>
         <UFormGroup label="Email" name="email">
           <UInput v-model="state.email" />
+        </UFormGroup> -->
+        <UFormGroup label="Phone Number" required name="phoneNumber">
+          <UInput v-model="state.phoneNumber" v-maska:unmaskedPhone.unmasked="'##-###-#####'" />
         </UFormGroup>
         <UFormGroup label="Logo" required name="logo">
           <input type="file" @change="changeFile">

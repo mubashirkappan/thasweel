@@ -44,7 +44,7 @@ function submit() {
   loading.value = true
 
   const body = {
-    phonenumber: unmaskedPhone.value,
+    phonenumber: Number(unmaskedPhone.value),
     name: state.name,
     address: state.address || 'Nothing',
     items: cartStore.itemsWithPrices,
@@ -145,7 +145,7 @@ function handleSlotClick() {
         <div class="border border-red-500  rounded-xl p-4 md:my-3 flex flex-col items-center justify-center">
           <UForm :state="state" class="space-y-4 flex items-center justify-center flex-col w-full " :schema="schema" @submit="submit">
             <UFormGroup label="Phone Number" required name="phoneNumber" class="w-full">
-              <UInput v-model="state.phoneNumber" v-maska:unmaskedPhone.unmasked="'+966 ##-###-####'" />
+              <UInput v-model="state.phoneNumber" v-maska:unmaskedPhone.unmasked="'##-###-#####'" />
             </UFormGroup>
             <UFormGroup label="Name" required name="name" class="w-full">
               <UInput v-model="state.name" />
