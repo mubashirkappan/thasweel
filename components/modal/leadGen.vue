@@ -78,6 +78,8 @@ function submit() {
 
 function generateMessage(data) {
   let message = `Hi, I would like to place the following order::\n\n`
+  message += `Name: ${state.name}\n`
+  message += `Phone Number: ${unmaskedPhone.value}\n \n`
   data.items.forEach((item, index) => {
     message += `${index + 1}. ${item.name}\n   - Quantity: ${item.quantity}\n   - Price (${item.quantity}*${item.pricePerItem}): ${item.totalPrice}\n\n`
   })
