@@ -44,7 +44,7 @@ function submit() {
   loading.value = true
 
   const body = {
-    phonenumber: Number(unmaskedPhone.value),
+    phonenumber: unmaskedPhone.value,
     name: state.name,
     address: state.address || 'Nothing',
     items: cartStore.itemsWithPrices,
@@ -77,7 +77,7 @@ function submit() {
 }
 
 function generateMessage(data) {
-  let message = `Hi, I would like to place the following order::\n\n`
+  let message = `Hi, I would like to place the following order:\n\n`
   message += `Name: ${state.name}\n`
   message += `Phone Number: ${unmaskedPhone.value}\n \n`
   data.items.forEach((item, index) => {

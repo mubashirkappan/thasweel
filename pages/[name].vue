@@ -3,7 +3,7 @@ import { useCartStore } from '/composables/cartData'
 
 definePageMeta
 ({
-  layout: false,
+  layout: 'inner',
 })
 
 const cartStore = useCartStore()
@@ -178,5 +178,4 @@ onMounted(
       class="animate-spin text-[45px] text-primary"
     />
   </div>
-  <CoreFooterSec />
 </template>
