@@ -131,7 +131,6 @@ onMounted(
       <div class="pb-2">
         <ShopSwiper :images="fetchedImages" />
       </div>
-uikqehjioeqlkjne
       <ShopCategory v-model="selectedCategory" :data="categoryList" />
       <CoreListing title="Products Available" :search="false">
         <template #search>
