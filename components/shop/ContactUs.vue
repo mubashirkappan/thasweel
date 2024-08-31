@@ -52,7 +52,7 @@ defineExpose({ unmaskedPhone })
 
 <template>
   <div class="flex items-center justify-center p-10">
-    <div class="border p-2 rounded-md border-red-500 w-full max-w-[700px] p-10">
+    <div class="border  rounded-md border-red-500 w-full max-w-[700px] px-3 py-4 md:p-10">
       <div class="py-2  text-xl md:text-3xl text-center font-bold">
         Contact Us
       </div>
