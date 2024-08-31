@@ -108,7 +108,7 @@ async function submit() {
   formData.append('address', state.address)
   formData.append('landmark', state.landmark)
   formData.append('country_code', '+91')
-  formData.append('phone', Number(unmaskedPhone.value))
+  formData.append('phone', unmaskedPhone.value)
   formData.append('email', state.email)
   formData.append('logo', state.logo_name)
   formData.append('encrypted_id', state.enc_id)
@@ -173,7 +173,7 @@ onMounted(() => {
         @click="isOpen = false"
       />
       <div class="py-2 text-3xl text-center font-bold">
-        Register Your Shop Now
+        Edit Shop Details
       </div>
       <UForm :state="state" class="space-y-4" :schema="schema" @submit="submit">
         <!-- <UFormGroup label="Shop Name" required name="name">

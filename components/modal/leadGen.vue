@@ -1,6 +1,5 @@
 <script setup>
 import { z } from 'zod'
-import { storeToRefs } from 'pinia'
 import { useCartStore } from '/composables/cartData'
 
 const props = defineProps({
@@ -17,11 +16,8 @@ const props = defineProps({
 })
 
 const unmaskedPhone = ref('')
-
+const leadGen = ref(false)
 const cartStore = useCartStore()
-
-const authStatus = useAuth()
-const { leadGen, loginPop } = storeToRefs(authStatus)
 
 const state = reactive({
   phoneNumber: undefined,
@@ -83,14 +79,13 @@ function generateMessage(data) {
   data.items.forEach((item, index) => {
     message += `${index + 1}. ${item.name}\n   - Quantity: ${item.quantity}\n   - Price (${item.quantity}*${item.pricePerItem}): ${item.totalPrice}\n\n`
   })
-  message += `Total Price: ${data.total_price}\n \n`
+  message += `Total Price: SAR${data.total_price}\n \n`
   message += 'Please confirm the order and let me know the expected delivery time. Thank you!'
   return message
 }
 defineExpose({ unmaskedPhone })
 
 function handleSlotClick() {
-  loginPop.value = false
   leadGen.value = true
 }
 </script>
