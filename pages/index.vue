@@ -43,4 +43,5 @@ onMounted(getData)
 
 <template>
   <ShopHero />
+  <ShopContactUs />
 </template>

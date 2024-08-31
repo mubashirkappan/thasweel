@@ -9,7 +9,7 @@ defineProps({
 })
 
 const authStatus = useAuth()
-const { loggedIn, token, ItemsCount, signPop } = storeToRefs(authStatus)
+const { loggedIn, token, ItemsCount, leadGen } = storeToRefs(authStatus)
 const isOpen = ref(false)
 
 const hero = ref(false)
@@ -18,10 +18,10 @@ function heroView() {
 }
 const route = useRoute()
 if (route.query.mode === 'register')
-  signPop.value = true
+  leadGen.value = true
 
 // if (route.query.mode === 'register')
-//   signPop.value = true
+//   leadGen.value = true
 function logOut() {
   loggedIn.value = false
   token.value = null

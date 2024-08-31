@@ -80,7 +80,7 @@ function isInCart(itemName) {
         </div>
       </div>
      
-      <div  v-if="isInCart(item.name)" class="grid grid-cols-6 gap-2">
+      <div v-if="isInCart(item.name)" class="grid grid-cols-6 gap-2">
         <UButton
           :loading="loading"
           size="lg"

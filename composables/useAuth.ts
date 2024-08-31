@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 
 export const useAuth = defineStore('useAuth', () => {
   const loggedIn = ref(false)
-  const signPop = ref(false)
+  const leadGen = ref(false)
   const loginPop = ref(false)
   const token = ref('')
   const isOwner = ref('')
@@ -11,7 +11,7 @@ export const useAuth = defineStore('useAuth', () => {
   return {
     ItemsCount,
     loggedIn,
-    signPop,
+    leadGen,
     loginPop,
     token,
     isOwner

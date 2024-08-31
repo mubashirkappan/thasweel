@@ -21,7 +21,7 @@ const unmaskedPhone = ref('')
 const cartStore = useCartStore()
 
 const authStatus = useAuth()
-const { signPop, loginPop } = storeToRefs(authStatus)
+const { leadGen, loginPop } = storeToRefs(authStatus)
 
 const state = reactive({
   phoneNumber: undefined,
@@ -91,7 +91,7 @@ defineExpose({ unmaskedPhone })
 
 function handleSlotClick() {
   loginPop.value = false
-  signPop.value = true
+  leadGen.value = true
 }
 </script>
 
@@ -99,7 +99,7 @@ function handleSlotClick() {
   <UButton
     v-if="!custom"
     class="flex items-center justify-center px-3 text-black transition-colors bg-white border border-black rounded hover:bg-black hover:text-white"
-    @click="signPop = true"
+    @click="leadGen = true"
   >
     Sign Up
   </UButton>
@@ -107,14 +107,14 @@ function handleSlotClick() {
     <slot />
   </UButton>
 
-  <UModal v-model="signPop" :ui="{ width: 'sm:max-w-[1000px]' }">
+  <UModal v-model="leadGen" :ui="{ width: 'sm:max-w-[1000px]' }">
     <div class="relative  p-4">
       <UButton
         color="gray"
         variant="ghost"
         icon="i-heroicons-x-mark-20-solid"
         class="-my-1 absolute top-2 right-1"
-        @click="signPop = false"
+        @click="leadGen = false"
       />
       <div class="py-2  text-xl md:text-3xl text-center font-bold">
         Check Out

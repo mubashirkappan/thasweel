@@ -34,7 +34,7 @@ const toast = useToast()
 const showPassword = ref(false)
 
 const authStatus = useAuth()
-const { loggedIn, signPop, loginPop, token, isOwner, ItemsCount } = storeToRefs(authStatus)
+const { loggedIn, leadGen, loginPop, token, isOwner, ItemsCount } = storeToRefs(authStatus)
 
 const data = ref()
 
@@ -68,7 +68,7 @@ function submit() {
 }
 function handleSlotClick() {
   loginPop.value = true
-  signPop.value = false
+  leadGen.value = false
 }
 </script>
 
