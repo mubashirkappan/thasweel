@@ -71,10 +71,10 @@ function isInCart(itemName) {
           <CoreCounter v-model="count[key]" />
           <div class="flex gap-1 items-center">
             <div class="text-primary font-semibold text-3xl">
-              <span class="text-sm">SAR</span>{{ item.db_price }}
+              <span class="text-sm">{{ cartStore.getCurrency }}</span>{{ item.db_price }}
             </div>
             <div class="line-through text-[#adadad] font-medium text-sm">
-              <span class="text-xs">SAR </span>{{ item.price }}
+              <span class="text-xs">{{ cartStore.getCurrency }} </span>{{ item.price }}
             </div>
           </div>
         </div>

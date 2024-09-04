@@ -18,6 +18,7 @@ const state = reactive({
   address: undefined,
   landmark: undefined,
   phoneNumber: undefined,
+  countryCode: undefined,
   email: undefined,
   logo_name: null,
   delivery: false,
@@ -34,6 +35,7 @@ watch(() => props.data, (newData) => {
   state.address = newData.address
   state.landmark = newData.landmark
   state.phoneNumber = newData.phone
+  state.countryCode = newData.country_code
   state.email = newData.email
   state.delivery = (newData.delivery === 1)
   state.km = newData.km
@@ -53,6 +55,7 @@ const schema = z.object({
   address: z.string().min(2, 'Must be at least 2 characters'),
   landmark: z.string().optional(),
   phoneNumber: z.string(),
+  countryCode: z.string(),
   place_id: z.any(),
   email: z.preprocess(val => val === '' ? undefined : val, z.string().email('Invalid email')),
   logo_name: z.any().optional(),
@@ -107,7 +110,7 @@ async function submit() {
   formData.append('user_name', state.username)
   formData.append('address', state.address)
   formData.append('landmark', state.landmark)
-  formData.append('country_code', '+91')
+  formData.append('country_code', state.countryCode)
   formData.append('phone', unmaskedPhone.value)
   formData.append('email', state.email)
   formData.append('logo', state.logo_name)
@@ -199,9 +202,14 @@ onMounted(() => {
         <UFormGroup label="Email" name="email">
           <UInput v-model="state.email" />
         </UFormGroup> -->
-        <UFormGroup label="Phone Number" required name="phoneNumber">
-          <UInput v-model="state.phoneNumber" v-maska:unmaskedPhone.unmasked="'##-###-#####'" />
-        </UFormGroup>
+        <div class="grid grid-cols-12 gap-3">
+          <UFormGroup label="Country Code" required name="countryCode" class="col-span-3">
+            <UInput v-model="state.countryCode" />
+          </UFormGroup>
+          <UFormGroup label="Phone Number" required name="phoneNumber" class="col-span-9">
+            <UInput v-model="state.phoneNumber" v-maska:unmaskedPhone.unmasked="'##-###-#####'" />
+          </UFormGroup>
+        </div>
         <UFormGroup label="Logo" required name="logo">
           <input type="file" @change="changeFile">
         </UFormGroup>

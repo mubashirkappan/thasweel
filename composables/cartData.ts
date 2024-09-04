@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 
 interface CartItem {
+  currency:string;
   name: string;
   count: number;
   price: number;
@@ -33,6 +34,12 @@ export const useCartStore = defineStore('cartStore', {
         }
       }
     },
+    setCurrency(newCurrency: string) {
+      this.currency = newCurrency;
+      this.cartItems.forEach((item) => {
+        item.currency = newCurrency;
+      });
+    },
     removeItem(itemName: string) {
       const index = this.cartItems.findIndex((i) => i.name === itemName);
 
@@ -64,6 +71,9 @@ export const useCartStore = defineStore('cartStore', {
     },
     productCount(): number {
       return this.cartItems.length;
+    },
+    getCurrency(): string {
+      return this.currency;
     },
   },
 });

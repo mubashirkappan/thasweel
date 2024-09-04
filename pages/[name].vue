@@ -23,13 +23,14 @@ async function fetchShops(query) {
   loading.value = true
   try {
     const response = await fetch(
-      `${config.public.apiBaseUrl}/shops?shop=${query}`,
+      `${config.public.apiBaseUrl}/shops?shop=${query}&from=thasweel`,
     )
 
     if (!response.ok)
       throw new Error('Failed to list Shops')
     data = await response.json()
     shopDetail.value = data.data[0]
+    cartStore.setCurrency(shopDetail.value?.currency)
     itemList.value = data.data[0].items
     categoryList.value = data.data[0].categorys
   }

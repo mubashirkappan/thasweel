@@ -1,4 +1,7 @@
 <script setup>
+import { useCartStore } from '/composables/cartData'
+
+const cartStore = useCartStore()
 const authStatus = useAuth()
 const loading = ref(true)
 const config = useRuntimeConfig()
@@ -88,7 +91,7 @@ onMounted(() => {
             </div>
             <div>
               <p class="text-lg font-semibold text-blue-600">
-                {{ order.total_price }} SAR
+                {{ order.total_price }} {{ cartStore.getCurrency }}
               </p>
               <p :class="order.is_completed ? 'text-green-500' : 'text-red-500'">
                 {{ order.is_completed ? 'Completed' : 'Pending' }}
@@ -106,9 +109,9 @@ onMounted(() => {
                 class="flex justify-between"
               >
                 <span>
-                  {{ item.name }} ({{ item.quantity }} x {{ item.price_per_item }} SAR)
+                  {{ item.name }} ({{ item.quantity }} x {{ item.price_per_item }} {{ cartStore.getCurrency }})
                 </span>
-                <span class="font-semibold">{{ item.totalPrice }} SAR</span>
+                <span class="font-semibold">{{ item.totalPrice }} {{ cartStore.getCurrency }}</span>
               </li>
             </ul>
           </div>

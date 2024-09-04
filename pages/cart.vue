@@ -1,9 +1,12 @@
 <script setup>
+import { useCartStore } from '/composables/cartData'
+
 definePageMeta({
   middleware: ['auth'],
   // or middleware: 'auth'
 })
 
+const cartStore = useCartStore()
 const authStatus = useAuth()
 const { token, ItemsCount } = storeToRefs(authStatus)
 const config = useRuntimeConfig()
@@ -156,7 +159,7 @@ onMounted(() => {
                 <div class="flex flex-col gap-3 pb-2">
                   <div class="flex  flex-wrap  gap-1 items-center">
                     <div class="text-primary font-semibold text-3xl">
-                      <span class="text-sm">SAR</span>{{ cartItem.dibi_price }}
+                      <span class="text-sm">{{ cartStore.getCurrency }}</span>{{ cartItem.dibi_price }}
                     </div>
 
                     <div class=" text-[#adadad] font-medium text-xl">

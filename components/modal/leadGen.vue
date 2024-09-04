@@ -57,7 +57,7 @@ function submit() {
       const message = generateMessage(body)
       cartStore.$reset()
       setTimeout(() => {
-        const whatsappLink = `https://wa.me/${props.shopDetails.phone}?text=${encodeURIComponent(message)}`
+        const whatsappLink = `https://wa.me/${props.shopDetails.country_code}${props.shopDetails.phone}?text=${encodeURIComponent(message)}`
         window.open(whatsappLink, '_blank')
         loading.value = false // Stop loading after the delay
       }, 1000)
@@ -79,7 +79,7 @@ function generateMessage(data) {
   data.items.forEach((item, index) => {
     message += `${index + 1}. ${item.name}\n   - Quantity: ${item.quantity}\n   - Price (${item.quantity}*${item.pricePerItem}): ${item.totalPrice}\n\n`
   })
-  message += `Total Price: SAR${data.total_price}\n \n`
+  message += `Total Price: ${cartStore.getCurrency}${data.total_price}\n \n`
   message += 'Please confirm the order and let me know the expected delivery time. Thank you!'
   return message
 }
@@ -135,7 +135,7 @@ function handleSlotClick() {
               Total
             </span>
             <div>
-              {{ cartStore.totalAmount }}
+              {{ cartStore.getCurrency }} {{ cartStore.totalAmount }}
             </div>
           </div>
         </div>
