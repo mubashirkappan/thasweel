@@ -159,6 +159,12 @@ onMounted(() => {
         <!-- <UButton size="xl" class=" text-lg mt-3 my-auto" @click="openModal()">
           Add more
         </UButton> -->
+        <div class="flex items-center justify-center flex-col w-full bg-[#fc544c44] p-4 gap-5  mt-10 rounded-xl">
+          <div class="font-bold text-xl md:text-3xl text-center">
+            Share Your Business with Others
+          </div>
+          <ProfileQrcode :slug="fetchedShopData[0].slug " />
+        </div>
       </div>
       <div v-else class="flex flex-col items-center justify-center gap-3">
         <div

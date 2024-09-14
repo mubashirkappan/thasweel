@@ -9,7 +9,29 @@ const { token } = storeToRefs(authStatus)
 const toast = useToast()
 const fetchedShopData = ref([])
 const fetchedOrderData = ref([])
+const countryCode = ref(null)
 const shopId = ref(null)
+
+const countryTimeZones = {
+  AED: 'Asia/Dubai', // Dubai
+  INR: 'Asia/Kolkata', // India
+  SAR: 'Asia/Riyadh', // Saudi Arabia
+  QAR: 'Asia/Qatar', // Qatar
+  BHR: 'Asia/Bahrain', // Bahrain
+}
+function formatDateToCountryTimeZone(date, country) {
+  const timeZone = countryTimeZones[country] || 'UTC' // Fallback to UTC if country not found
+  return new Intl.DateTimeFormat('en-GB', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true,
+  }).format(new Date(date))
+}
 
 function fetchShopList() {
   loading.value = true
@@ -22,6 +44,8 @@ function fetchShopList() {
     .then((response) => {
       fetchedShopData.value = response.data
       shopId.value = fetchedShopData.value[0].id
+      countryCode.value = fetchedShopData.value[0].currency
+      cartStore.setCurrency(fetchedShopData.value[0].currency)
       if (shopId.value)
         fetchOrder(shopId.value)
     })
@@ -116,7 +140,7 @@ onMounted(() => {
             </ul>
           </div>
           <div class="mt-4 text-sm text-gray-500">
-            Order Date: {{ new Date(order.created_at).toLocaleString() }}
+            Order Date: {{ formatDateToCountryTimeZone(order.created_at, countryCode) }}
           </div>
         </div>
       </div>

@@ -16,12 +16,14 @@
     "maska": "^3.0.1",
     "nuxt-swiper": "^1.2.2",
     "pinia": "^2.1.7",
+    "qrcode": "^1.5.4",
     "vue": "^3.4.19",
     "vue-router": "^4.2.5",
     "zod": "^3.23.6"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^2.6.4",
+    "@nuxt/image": "^1.8.0",
     "@nuxt/ui": "^2.15.2",
     "@nuxtjs/google-fonts": "^3.2.0",
     "@nuxtjs/tailwindcss": "^6.11.4",
