@@ -21,7 +21,7 @@ onMounted(() => {
 function submit(itemName, quantity, price) {
   loading.value = true
   if (quantity < 1) {
-    toast.add({ title: 'Cart item count must be greater than or equal to 1', color: 'red', icon: 'i-heroicons-x-circle' })
+    toast.add({ timeout: 1500, title: 'Cart item count must be greater than or equal to 1', color: 'red', icon: 'i-heroicons-x-circle' })
     loading.value = false
     return
   }
@@ -30,20 +30,20 @@ function submit(itemName, quantity, price) {
 
   if (existingItem) {
     if (existingItem.count === quantity) {
-      toast.add({ title: 'Item already existing', color: 'red', icon: 'i-heroicons-x-circle' })
+      toast.add({ timeout: 1500, title: 'Item already existing', color: 'red', icon: 'i-heroicons-x-circle' })
       loading.value = false
       return
     }
   }
   cartStore.addItem(itemName, quantity, price)
   if (existingItem)
-    toast.add({ title: 'Items count Updated', color: 'green', icon: 'i-heroicons-check-badge' })
-  toast.add({ title: 'Items added to cart', color: 'green', icon: 'i-heroicons-check-badge' })
+    toast.add({ timeout: 1500, title: 'Items count Updated', color: 'green', icon: 'i-heroicons-check-badge' })
+  toast.add({ timeout: 1500, title: 'Items added to cart', color: 'green', icon: 'i-heroicons-check-badge' })
   loading.value = false
 }
 function removeItem(itemName) {
   cartStore.removeItem(itemName)
-  toast.add({ title: 'Item removed from cart', color: 'green', icon: 'i-heroicons-check-badge' })
+  toast.add({ timeout: 1500, title: 'Item removed from cart', color: 'green', icon: 'i-heroicons-check-badge' })
 }
 
 function isInCart(itemName) {
@@ -79,7 +79,7 @@ function isInCart(itemName) {
           </div>
         </div>
       </div>
-     
+
       <div v-if="isInCart(item.name)" class="grid grid-cols-6 gap-2">
         <UButton
           :loading="loading"
@@ -101,15 +101,15 @@ function isInCart(itemName) {
         </UButton>
       </div>
       <UButton
-      v-else
-          :loading="loading"
-          size="lg"
-          class="flex items-center justify-center w-full col-span-4"
-          @click="submit(item.name, count[key], item.db_price)"
-        >
-          <Icon name="lucide:shopping-cart" />
-          Add to cart
-        </UButton>
+        v-else
+        :loading="loading"
+        size="lg"
+        class="flex items-center justify-center w-full col-span-4"
+        @click="submit(item.name, count[key], item.db_price)"
+      >
+        <Icon name="lucide:shopping-cart" />
+        Add to cart
+      </UButton>
     </div>
   </div>
 </template>
