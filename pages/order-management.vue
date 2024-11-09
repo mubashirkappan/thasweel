@@ -84,6 +84,33 @@ function fetchOrder(id) {
     })
 }
 
+function DeliverNow(id, shop_id) {
+  loading.value = true
+  $fetch(`${config.public.apiBaseUrl}/deliverd`, {
+    headers: {
+      Authorization: `Bearer ${token.value}`,
+      accept: 'application/json',
+    },
+    body: {
+      order_id: id,
+    },
+    method: 'POST',
+  })
+    .then((response) => {
+      fetchOrder(shop_id)
+    })
+    .catch(({ data }) => {
+      toast.add({
+        title: data.response,
+        color: 'red',
+        icon: 'i-heroicons-x-circle',
+      })
+    })
+    .finally(() => {
+      loading.value = false
+    })
+}
+
 onMounted(() => {
   fetchShopList()
 })
@@ -94,14 +121,14 @@ onMounted(() => {
     <div class="max-container">
       <div v-if="!loading" class="space-y-4">
         <div
-          v-for="order in fetchedOrderData"
+          v-for="(order, index) in fetchedOrderData"
           :key="order.id"
           class="border border-gray-300 rounded-lg p-4 shadow-sm"
         >
           <div class="flex justify-between items-center">
             <div>
               <h3 class="text-lg font-semibold">
-                Order #{{ order.id }}
+                Order #{{ index + 1 }}
               </h3>
               <p class="text-gray-600">
                 {{ order.user_name }}
@@ -117,9 +144,20 @@ onMounted(() => {
               <p class="text-lg font-semibold text-blue-600">
                 {{ order.total_price }} {{ cartStore.getCurrency }}
               </p>
-              <p :class="order.is_completed ? 'text-green-500' : 'text-red-500'">
-                {{ order.is_completed ? 'Completed' : 'Pending' }}
-              </p>
+              <div v-if="order.status === 'deliverd'" class="text-green-500">
+                Completed
+              </div>
+              <div v-else class="text-red-500">
+                Pending
+                <UButton
+                  :loading="loading"
+                  size="sm"
+                  @click="DeliverNow(order.id, order.shop_id)"
+                >
+                  <Icon name="lucide:shopping-cart" />
+                  Deliver Now
+                </UButton>
+              </div>
             </div>
           </div>
           <div class="mt-4">
