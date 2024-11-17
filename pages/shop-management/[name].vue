@@ -209,6 +209,34 @@ function deleteItem(value) {
       loading.value = false
     })
 }
+
+function toggleVisibilityItem(value) {
+  loading.value = true
+  $fetch(`${config.public.apiBaseUrl}/items/status-change/${value}`, {
+    headers: {
+      Authorization: `Bearer ${token.value}`,
+    },
+    method: 'GET',
+  })
+    .then((response) => {
+      toast.add({
+        title: response.message,
+        icon: 'i-heroicons-check-badge',
+      })
+    })
+    .catch(({ data }) => {
+      toast.add({
+        title: data.message,
+        color: 'red',
+        icon: 'i-heroicons-x-circle',
+      })
+    })
+    .finally(() => {
+      fetchItemsList()
+      loading.value = false
+    })
+}
+
 function checkCategory() {
   if (fetchedCategories.value.length === 0) {
     toast.add({
@@ -302,12 +330,12 @@ onMounted(() => {
     </div>
     <div class="main-container py-5">
       <div class="max-container">
-        <div class="text-2xl font-bold">
+        <div class="text-2xl font-bold pb-2">
           Items
         </div>
         <div v-if="fetchedItems.length !== 0" class="flex flex-col gap-3">
           <div class="  w-full gap-5 grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 justify-center ">
-            <div v-for="item in fetchedItems " :key="item?.name" class="w-full border p-2 gap-2 items-center border-black/50 rounded-md flex flex-col max-w-[300px]">
+            <div v-for="item in fetchedItems " :key="item?.name" class="w-full border p-2 gap-2 items-center border-black/50 rounded-md flex flex-col max-w-[300px] relative" :class="{ 'after:bg-white after:absolute after:h-full after:w-full after:top-0 after:right-0 after:rounded-md after:opacity-80': !item.active }">
               <div class="h-[calc(100%-80px)] flex-shrink-0 ">
                 <img :src="item.image_name" class="object-cover rounded-md w-full h-full max-h-[200px] object-center" alt="">
               </div>
@@ -317,6 +345,9 @@ onMounted(() => {
                   {{ item.name }}
                 </div>
                 <div class="flex gap-2 ">
+                  <UButton size="xl" variant="solid" class="bg-primary hover:bg-primary/80" @click="toggleVisibilityItem(item.encrypted_id)">
+                    <Icon name="i-mdi-eye-off-outline" />
+                  </UButton>
                   <UButton size="xl" variant="solid" class="bg-red-600 hover:bg-red-500" @click="deleteItem(item.encrypted_id)">
                     <Icon name="i-heroicons-trash" />
                   </UButton>
@@ -325,6 +356,9 @@ onMounted(() => {
                   </UButton>
                 </div>
               </div>
+              <UButton v-if="!item.active" size="xl" variant="solid" class="bg-primary hover:bg-primary/80 absolute z-10 left-1/2 top-1/2 -translate-x-[50%]  -translate-y-[50%]" @click="toggleVisibilityItem(item.encrypted_id)">
+                <Icon name="i-mdi-eye-outline" />
+              </UButton>
             </div>
           </div>
           <UButton size="xl" class=" text-lg mt-3 mx-auto " @click="openModal()">

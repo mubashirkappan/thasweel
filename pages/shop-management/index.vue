@@ -87,7 +87,6 @@ function deleteItem(value) {
     })
 }
 function editItem(obj) {
-  // console.log(obj);
   data.value = obj
   openEdit.value = true
 }

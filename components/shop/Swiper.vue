@@ -22,7 +22,7 @@ defineProps({
     }"
   >
     <SwiperSlide v-for="slide in images" :key="slide">
-      <img :src="slide.image_url" class="object-cover rounded-md w-full h-full max-h-[200px] object-center" alt="">
+      <img :src="slide.image_url" class="object-contain rounded-md w-full h-full max-h-[285px] md:max-h-[400px] object-center" alt="">
     </SwiperSlide>
   </Swiper>
 </template>

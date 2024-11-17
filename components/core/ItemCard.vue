@@ -53,35 +53,56 @@ function isInCart(itemName) {
 
 <template>
   <!-- {{ itemNames }} -->
-  <div v-for="(item, key) in data" :key="item.id" class="flex flex-col p-5 border border-gray-200 rounded-xl max-w-[400px] w-full mx-auto">
-    <div class="max-h-[150px] h-full overflow-hidden">
-      <img :src="item.image_name" class="object-contain max-h-[150px] w-full h-full" :alt="item.image_name">
-    </div>
-    <div class="flex flex-col justify-between h-full">
-      <div class="flex flex-col justify-between h-full">
-        <div>
-          <div class="text-base font-semibold mt-2 text-[#253D4E]">
-            {{ item.name }}
-          </div>
-          <div v-if="item.description" class="text-sm font-medium py-3">
-            {{ item.description }}
-          </div>
-        </div>
-        <div class="flex flex-col gap-3 pb-2">
-          <CoreCounter v-model="count[key]" />
-          <div class="flex gap-1 items-center">
-            <div class="text-primary font-semibold text-3xl">
-              <span class="text-sm">{{ cartStore.getCurrency }}</span>{{ item.db_price }}
-            </div>
-            <div class="line-through text-[#adadad] font-medium text-sm">
-              <span class="text-xs">{{ cartStore.getCurrency }} </span>{{ item.price }}
-            </div>
-          </div>
-        </div>
+  <template v-for="(item, key) in data" :key="item.id">
+    <div v-if="item.active" class="flex flex-col p-5 border border-gray-200 rounded-xl max-w-[400px] w-full mx-auto">
+      <div class="max-h-[150px] h-full overflow-hidden">
+        <img :src="item.image_name" class="object-contain max-h-[150px] w-full h-full" :alt="item.image_name">
       </div>
+      <div class="flex flex-col justify-between h-full">
+        <div class="flex flex-col justify-between h-full">
+          <div>
+            <div class="text-base font-semibold mt-2 text-[#253D4E]">
+              {{ item.name }}
+            </div>
+            <div v-if="item.description" class="text-sm font-medium py-3">
+              {{ item.description }}
+            </div>
+          </div>
+          <div class="flex flex-col gap-3 pb-2">
+            <CoreCounter v-model="count[key]" />
+            <div class="flex gap-1 items-center">
+              <div class="text-primary font-semibold text-3xl">
+                <span class="text-sm">{{ cartStore.getCurrency }}</span>{{ item.db_price }}
+              </div>
+              <div class="line-through text-[#adadad] font-medium text-sm">
+                <span class="text-xs">{{ cartStore.getCurrency }} </span>{{ item.price }}
+              </div>
+            </div>
+          </div>
+        </div>
 
-      <div v-if="isInCart(item.name)" class="grid grid-cols-6 gap-2">
+        <div v-if="isInCart(item.name)" class="grid grid-cols-6 gap-2">
+          <UButton
+            :loading="loading"
+            size="lg"
+            class="flex items-center justify-center w-full col-span-4"
+            @click="submit(item.name, count[key], item.db_price)"
+          >
+            <Icon name="lucide:shopping-cart" />
+            Add to cart
+          </UButton>
+          <UButton
+            size="lg"
+            variant="outline"
+            class="flex items-center justify-center w-full col-span-2"
+            @click="removeItem(item.name)"
+          >
+            <Icon name="lucide:trash" />
+            Delete
+          </UButton>
+        </div>
         <UButton
+          v-else
           :loading="loading"
           size="lg"
           class="flex items-center justify-center w-full col-span-4"
@@ -90,26 +111,7 @@ function isInCart(itemName) {
           <Icon name="lucide:shopping-cart" />
           Add to cart
         </UButton>
-        <UButton
-          size="lg"
-          variant="outline"
-          class="flex items-center justify-center w-full col-span-2"
-          @click="removeItem(item.name)"
-        >
-          <Icon name="lucide:trash" />
-          Delete
-        </UButton>
       </div>
-      <UButton
-        v-else
-        :loading="loading"
-        size="lg"
-        class="flex items-center justify-center w-full col-span-4"
-        @click="submit(item.name, count[key], item.db_price)"
-      >
-        <Icon name="lucide:shopping-cart" />
-        Add to cart
-      </UButton>
     </div>
-  </div>
+  </template>
 </template>
