@@ -18,7 +18,8 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      apiBaseUrl: process.env.BASE_URL
+      apiBaseUrl: process.env.BASE_URL,
+      frontendUrl : process.env.FRONTEND_URL || 'https://www.thasweel.com' // Add this
     }
   },
   colorMode: {

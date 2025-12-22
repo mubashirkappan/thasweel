@@ -5,6 +5,7 @@ import QRCode from 'qrcode'
 const props = defineProps({
   slug: String,
 })
+const config = useRuntimeConfig()
 
 const qrCode = ref('')
 const toast = useToast()
@@ -13,7 +14,8 @@ const isLoading = ref(true) // Add a loading state
 async function generateQRCode(data) {
   try {
     if (data)
-      qrCode.value = await QRCode.toDataURL(`https://www.thasweel.com/${data}`)
+      qrCode.value = await QRCode.toDataURL(`${config.public.siteUrl}/${data}`)
+      // qrCode.value = await QRCode.toDataURL(`https://www.thasweel.com/${data}`)
   }
   catch (error) {
     toast.add({
