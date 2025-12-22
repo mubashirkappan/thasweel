@@ -14,6 +14,10 @@ const isLoading = ref(true) // Add a loading state
 async function generateQRCode(data) {
   try {
     if (data)
+
+    console.log(config.public.apiBaseUrl);
+    console.log(config.public.frontendUrl);
+    console.log(4);
       qrCode.value = await QRCode.toDataURL(`${config.public.frontendUrl}/${data}`)
   }
   catch (error) {
