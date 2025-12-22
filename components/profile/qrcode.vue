@@ -14,9 +14,8 @@ const isLoading = ref(true) // Add a loading state
 async function generateQRCode(data) {
   try {
     if (data)
-      qrCode.value = await QRCode.toDataURL(`${config.public.siteUrl}/${data}`)
-      // qrCode.value = await QRCode.toDataURL(`https://www.thasweel.com/${data}`)
-  }
+      qrCode.value = await QRCode.toDataURL(`${config.public.frontendUrl}/${data}`)
+  
   catch (error) {
     toast.add({
       title: `Error generating QR code: ${error.message || error}`,
