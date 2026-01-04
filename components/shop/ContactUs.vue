@@ -8,16 +8,14 @@ const state = reactive({
   message: undefined,
 })
 
-const schema = z
-  .object({
-    phoneNumber: z.string(),
-    name: z.string().min(2, 'Must be at least 2 characters'),
-    email: z.preprocess(val => val === '' ? undefined : val, z.string().email('Invalid email')),
-    message: z.string().nullish(),
-  })
+const schema = z.object({
+  phoneNumber: z.string(),
+  name: z.string().min(2, 'Must be at least 2 characters'),
+  email: z.preprocess(val => val === '' ? undefined : val, z.string().email('Invalid email')),
+  message: z.string().nullish(),
+})
 
 const unmaskedPhone = ref('')
-
 const loading = ref(false)
 const toast = useToast()
 const config = useRuntimeConfig()
@@ -51,25 +49,42 @@ defineExpose({ unmaskedPhone })
 </script>
 
 <template>
-  <div class="flex items-center justify-center p-10">
-    <div class="border  rounded-md border-red-500 w-full max-w-[700px] px-3 py-4 md:p-10">
-      <div class="py-2  text-xl md:text-3xl text-center font-bold">
-        Contact Us
+  <div class="flex items-center justify-center p-4 md:p-10">
+    
+    <div class="border rounded-md border-red-500 w-full max-w-[600px] px-4 py-6 md:p-10 bg-white">
+      
+      <div class="pb-4 text-lg md:text-3xl text-center font-bold text-gray-800">
+        Restaurant, cafe, food brand owners contact us
       </div>
-      <UForm :state="state" class="space-y-4 flex items-center justify-center flex-col w-full " :schema="schema" @submit="submit">
-        <UFormGroup label="Phone Number" required name="phoneNumber" class="w-full">
-          <UInput v-model="state.phoneNumber" v-maska:unmaskedPhone.unmasked="'##-###-#####'" />
-        </UFormGroup>
-        <UFormGroup label="Name" required name="name" class="w-full">
-          <UInput v-model="state.name" />
-        </UFormGroup>
-        <UFormGroup label="Email" required name="email" class="w-full">
-          <UInput v-model="state.email" />
-        </UFormGroup>
+
+      <UForm 
+        :state="state" 
+        class="space-y-4 flex flex-col w-full" 
+        :schema="schema" 
+        @submit="submit"
+      >
+      
+      <UFormGroup label="Name" required name="name" class="w-full">
+        <UInput v-model="state.name" placeholder="Your Name" />
+      </UFormGroup>
+      
+      <UFormGroup label="Phone Number" required name="phoneNumber" class="w-full">
+        <UInput v-model="state.phoneNumber" v-maska:unmaskedPhone.unmasked="'##-###-#####'" placeholder="99-999-99999" />
+      </UFormGroup>
+
         <UFormGroup label="Message" name="message" class="w-full">
-          <UTextarea v-model="state.message" />
+          <UTextarea v-model="state.message" placeholder="Type your message here..." />
         </UFormGroup>
-        <UButton label="Request a Call Back" :loading size="xl" class="self-end" type="submit" />
+
+        <div class="pt-2 w-full flex justify-end">
+           <UButton 
+             label="Request a Call Back" 
+             :loading="loading" 
+             size="xl" 
+             class="w-full md:w-auto justify-center" 
+             type="submit" 
+           />
+        </div>
       </UForm>
     </div>
   </div>

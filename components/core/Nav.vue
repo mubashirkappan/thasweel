@@ -1,6 +1,39 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 
+// 1. Get Runtime Config (to access your API URL defined in docker-compose)
+const config = useRuntimeConfig()
+const route = useRoute()
+const router = useRouter()
+
+// 2. Fetch the Shop List
+// We use 'transform' to ensure we only pass the clean array to the UI
+const { data: shopOptions, pending } = await useFetch('/shops', {
+  baseURL: config.public.apiBaseUrl, // Uses https://api.fooddly.com/api
+  transform: (response) => {
+    // Adjust 'response.data' depending on your actual API structure
+    return response.data || [] 
+  }
+})
+
+// 3. Initialize Selection from URL (if page is refreshed)
+// We default to the route query 'destination' if it exists
+const selectedShopSlug = ref(route.query.destination || null)
+
+// 4. Watch for changes and update URL
+watch(selectedShopSlug, (newSlug) => {
+  if (newSlug) {
+    router.push(`/${newSlug}`)
+    // router.push({
+    //   query: {
+    //     ...route.query,
+    //     destination: newSlug // Sets ?destination=shop-slug-here
+    //   }
+    // })
+  }
+})
+
+// ... Existing Code ...
 defineProps({
   optionalNav: {
     type: Boolean,
@@ -9,19 +42,17 @@ defineProps({
 })
 
 const authStatus = useAuth()
-const { loggedIn, token, ItemsCount, leadGen } = storeToRefs(authStatus)
+const { loggedIn, token, leadGen } = storeToRefs(authStatus)
 const isOpen = ref(false)
-
 const hero = ref(false)
+
 function heroView() {
   window.scrollY > 400 ? (hero.value = true) : (hero.value = false)
 }
-const route = useRoute()
+
 if (route.query.mode === 'register')
   leadGen.value = true
 
-// if (route.query.mode === 'register')
-//   leadGen.value = true
 function logOut() {
   loggedIn.value = false
   token.value = null
@@ -31,27 +62,41 @@ onMounted(() => {
   window.addEventListener('scroll', heroView)
 })
 </script>
-
 <template>
   <div class="main-container z-[100] bg-white shadow-black/10 shadow-xl" :class="hero ? 'fixed' : ''">
-    <div
-      class="max-container "
-    >
-      <div class="flex gap-3 items-center justify-between w-full py-2 md:py-4">
-        <div>
-          <img src="/img/logo.svg" class="max-w-[140px]" alt="">
+    <div class="max-container">
+      <div class="flex gap-2 items-center justify-between w-full py-2 md:py-4">
+        
+        <div class="shrink-0">
+          <img src="/img/logo.svg" class="w-[100px] md:w-[140px]" alt="">
         </div>
-        <template v-if="route.path === '/'">
-          <div v-if="!loggedIn" class="flex min-h-[40px] gap-3">
+
+<div class="flex-1 md:flex-none md:w-72 mx-2">
+   <USelectMenu 
+     v-model="selectedShopSlug" 
+     :options="shopOptions"
+     :loading="pending"
+     placeholder="Search..."
+     value-attribute="slug"
+     option-attribute="name"
+     searchable 
+     searchable-placeholder="Search..."
+     icon="i-heroicons-map-pin"
+     class="w-full"
+   />
+</div>
+
+        <template v-if="route.path === '/' || route.path.startsWith('/')">
+           <div v-if="!loggedIn" class="flex min-h-[40px] gap-2 shrink-0">
             <ModalLogin />
           </div>
 
-          <div v-else class="flex items-center gap-2 ">
+          <div v-else class="flex items-center gap-2 shrink-0">
             <UButton class="rounded-full aspect-square flex-shrink-0" to="/profile">
-              <Icon class="text-2xl" name="i-heroicons-user" />
+              <Icon class="text-xl md:text-2xl" name="i-heroicons-user" />
             </UButton>
             <UButton class="rounded-full aspect-square flex-shrink-0" @click="isOpen = true">
-              <Icon class="text-2xl" name="ant-design:logout-outlined" />
+              <Icon class="text-xl md:text-2xl" name="ant-design:logout-outlined" />
             </UButton>
           </div>
         </template>
