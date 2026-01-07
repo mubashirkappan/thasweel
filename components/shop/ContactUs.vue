@@ -4,14 +4,14 @@ import { z } from 'zod'
 const state = reactive({
   phoneNumber: undefined,
   name: undefined,
-  email: undefined,
+  // email: undefined,
   message: undefined,
 })
 
 const schema = z.object({
   phoneNumber: z.string(),
   name: z.string().min(2, 'Must be at least 2 characters'),
-  email: z.preprocess(val => val === '' ? undefined : val, z.string().email('Invalid email')),
+  // email: z.preprocess(val => val === '' ? undefined : val, z.string().email('Invalid email')),
   message: z.string().nullish(),
 })
 
@@ -24,7 +24,7 @@ function submit() {
   loading.value = true
   const body = {
     name: state.name,
-    email: state.email,
+    // email: state.email,
     phone: Number(unmaskedPhone.value),
     message: state.message || 'Nothing',
   }

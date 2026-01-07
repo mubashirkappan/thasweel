@@ -66,25 +66,29 @@ onMounted(() => {
   <div class="main-container z-[100] bg-white shadow-black/10 shadow-xl" :class="hero ? 'fixed' : ''">
     <div class="max-container">
       <div class="flex gap-2 items-center justify-between w-full py-2 md:py-4">
-        
-        <div class="shrink-0">
-          <img src="/img/logo.svg" class="w-[100px] md:w-[140px]" alt="">
-        </div>
+      <div class="shrink-0 flex items-center gap-2 ml-8">
+          <img src="/img/fooddly_logo_only.jpeg" class="w-[40px] md:w-[60px]" alt="Logo">
+          <img src="/img/fooddly_name.jpeg" class="w-[80px] md:w-[100px]" alt="Fooddly">
+      </div>        
+        <!-- <div class="shrink-0">
+          <img src="/img/fooddly_logo_only.jpeg" class="w-[100px] md:w-[140px]" alt="">
+          <img src="/img/fooddly_name.jpeg" class="w-[100px] md:w-[140px]" alt="">
+        </div> -->
 
-<div class="flex-1 md:flex-none md:w-72 mx-2">
+<!-- <div class="flex-1 md:flex-none md:w-72 mx-2">
    <USelectMenu 
      v-model="selectedShopSlug" 
      :options="shopOptions"
      :loading="pending"
      placeholder="Search..."
      value-attribute="slug"
-     option-attribute="name"
+     option-attribute="slug"
      searchable 
      searchable-placeholder="Search..."
      icon="i-heroicons-map-pin"
      class="w-full"
    />
-</div>
+</div> -->
 
         <template v-if="route.path === '/' || route.path.startsWith('/')">
            <div v-if="!loggedIn" class="flex min-h-[40px] gap-2 shrink-0">
