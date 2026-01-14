@@ -42,6 +42,31 @@ onMounted(getData)
 </script>
 
 <template>
-  <ShopHero />
-  <ShopContactUs />
+  <div>
+    
+    <div class="block w-full bg-gray-50 md:hidden">
+        <img 
+            src="/img/shop/mobile_hero (1).png" 
+            alt="Fooddly Mobile Home" 
+            class="w-full h-auto"
+        >
+        <ShopContactUs />
+    </div>
+
+    <div class="hidden md:block lg:hidden w-full">
+      <img 
+        src="/img/shop/tab_hero_new.png" 
+        alt="Fooddly Tablet View" 
+        class="w-full h-auto object-cover" 
+      >
+        <ShopContactUs />
+
+      </div>
+
+    <div class="hidden min-h-screen lg:block font-sans">
+      <ShopHero />
+      <ShopContactUs />
+    </div>
+
+  </div>
 </template>

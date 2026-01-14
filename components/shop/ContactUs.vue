@@ -54,7 +54,8 @@ defineExpose({ unmaskedPhone })
     <div class="border rounded-md border-red-500 w-full max-w-[600px] px-4 py-6 md:p-10 bg-white">
       
       <div class="pb-4 text-lg md:text-3xl text-center font-bold text-gray-800">
-        Restaurant, cafe, food brand owners contact us
+        <!-- Restaurant, cafe, food brand owners contact us -->
+         Fooddly Snacks Making Contest
       </div>
 
       <UForm 
@@ -72,13 +73,16 @@ defineExpose({ unmaskedPhone })
         <UInput v-model="state.phoneNumber" v-maska:unmaskedPhone.unmasked="'##-###-#####'" placeholder="99-999-99999" />
       </UFormGroup>
 
-        <UFormGroup label="Message" name="message" class="w-full">
-          <UTextarea v-model="state.message" placeholder="Type your message here..." />
+        <UFormGroup label="Place and District" name="message" class="w-full">
+          <UInput v-model="state.message" placeholder="Place and District" />
+
+          <!-- <UTextarea v-model="state.message" placeholder="Type your message here..." /> -->
         </UFormGroup>
 
+        <!-- label="Request a Call Back"  -->
         <div class="pt-2 w-full flex justify-end">
            <UButton 
-             label="Request a Call Back" 
+             label="Register Now" 
              :loading="loading" 
              size="xl" 
              class="w-full md:w-auto justify-center" 

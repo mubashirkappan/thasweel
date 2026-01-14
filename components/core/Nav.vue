@@ -1,39 +1,29 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 
-// 1. Get Runtime Config (to access your API URL defined in docker-compose)
+// 1. Get Runtime Config
 const config = useRuntimeConfig()
 const route = useRoute()
 const router = useRouter()
 
 // 2. Fetch the Shop List
-// We use 'transform' to ensure we only pass the clean array to the UI
 const { data: shopOptions, pending } = await useFetch('/shops', {
-  baseURL: config.public.apiBaseUrl, // Uses https://api.fooddly.com/api
+  baseURL: config.public.apiBaseUrl,
   transform: (response) => {
-    // Adjust 'response.data' depending on your actual API structure
     return response.data || [] 
   }
 })
 
-// 3. Initialize Selection from URL (if page is refreshed)
-// We default to the route query 'destination' if it exists
+// 3. Initialize Selection
 const selectedShopSlug = ref(route.query.destination || null)
 
-// 4. Watch for changes and update URL
+// 4. Watch for changes
 watch(selectedShopSlug, (newSlug) => {
   if (newSlug) {
     router.push(`/${newSlug}`)
-    // router.push({
-    //   query: {
-    //     ...route.query,
-    //     destination: newSlug // Sets ?destination=shop-slug-here
-    //   }
-    // })
   }
 })
 
-// ... Existing Code ...
 defineProps({
   optionalNav: {
     type: Boolean,
@@ -62,14 +52,18 @@ onMounted(() => {
   window.addEventListener('scroll', heroView)
 })
 </script>
+
 <template>
   <div class="main-container z-[100] bg-white shadow-black/10 shadow-xl" :class="hero ? 'fixed' : ''">
-    <div class="max-container">
-      <div class="flex gap-2 items-center justify-between w-full py-2 md:py-4">
-      <div class="shrink-0 flex items-center gap-2 ml-8">
-          <img src="/img/fooddly_logo_only.jpeg" class="w-[40px] md:w-[60px]" alt="Logo">
-          <img src="/img/fooddly_name.jpeg" class="w-[80px] md:w-[100px]" alt="Fooddly">
-      </div>        
+    
+    <div class="max-container w-full mx-auto px-2 md:px-8">
+      
+      <div class="flex items-center justify-between w-full py-2 md:py-4">
+        
+        <div class="shrink-0 flex items-center gap-2">
+            <img src="/img/fooddly_logo_only.jpeg" class="w-[35px] md:w-[60px]" alt="Logo">
+            <img src="/img/brand_name_green.jpeg" class="w-[70px] md:w-[100px]" alt="Fooddly">
+        </div>        
         <!-- <div class="shrink-0">
           <img src="/img/fooddly_logo_only.jpeg" class="w-[100px] md:w-[140px]" alt="">
           <img src="/img/fooddly_name.jpeg" class="w-[100px] md:w-[140px]" alt="">

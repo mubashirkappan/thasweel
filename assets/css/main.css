@@ -12,7 +12,7 @@ html {
 }
 
 .main-container {
-    @apply w-full flex flex-col items-center; 
+    @apply w-full flex flex-col items-start; 
 }
 .max-container {
     @apply w-full max-w-[1600px] px-3 md:px-6 lg:px-16;
