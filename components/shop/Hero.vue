@@ -2,7 +2,7 @@
   <div class="relative w-full h-[50vh] md:h-[85vh]">
     <div 
       class="absolute inset-0 w-full h-full bg-no-repeat bg-cover bg-center"
-      style="background-image: url('/img/shop/foodly_bg_img.jpeg');"
+      style="background-image: url('/img/shop/cropped_hero.webp');"
     >
     </div>
 

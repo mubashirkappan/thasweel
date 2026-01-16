@@ -46,7 +46,7 @@ onMounted(getData)
     
     <div class="block w-full bg-gray-50 md:hidden">
         <img 
-            src="/img/shop/mobile_hero (1).png" 
+            src="/img/shop/mobile_hero.webp" 
             alt="Fooddly Mobile Home" 
             class="w-full h-auto"
         >
@@ -55,7 +55,7 @@ onMounted(getData)
 
     <div class="hidden md:block lg:hidden w-full">
       <img 
-        src="/img/shop/tab_hero_new.png" 
+        src="/img/shop/tab_hero_new.webp" 
         alt="Fooddly Tablet View" 
         class="w-full h-auto object-cover" 
       >

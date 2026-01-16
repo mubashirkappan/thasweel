@@ -5,7 +5,7 @@
         
         <div class="flex items-center justify-center gap-3">
           <img 
-            src="/img/footer_image.jpeg" 
+            src="/img/footer_image.webp" 
             class="w-[150px] md:w-[250px] object-contain" 
             alt="Logo"
           >

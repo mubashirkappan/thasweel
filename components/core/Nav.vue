@@ -61,8 +61,8 @@ onMounted(() => {
       <div class="flex items-center justify-between w-full py-2 md:py-4">
         
         <div class="shrink-0 flex items-center gap-2">
-            <img src="/img/fooddly_logo_only.jpeg" class="w-[35px] md:w-[60px]" alt="Logo">
-            <img src="/img/brand_name_green.jpeg" class="w-[70px] md:w-[100px]" alt="Fooddly">
+            <img src="/img/fooddly_logo_only.webp" class="w-[35px] md:w-[60px]" alt="Logo">
+            <img src="/img/brand_name_green.webp" class="w-[70px] md:w-[100px]" alt="Fooddly">
         </div>        
         <!-- <div class="shrink-0">
           <img src="/img/fooddly_logo_only.jpeg" class="w-[100px] md:w-[140px]" alt="">
