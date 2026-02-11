@@ -24,7 +24,7 @@ const itemData = ref([])
 
 function fetchData() {
   loading.value = true
-  $fetch(`${config.public.apiBaseUrl}/shop/list`, {
+  $fetch(`${config.public.apiBaseUrl}/shop/list?from=thasweel`, {
     headers: {
       Authorization: `Bearer ${token.value}`,
     },
@@ -251,9 +251,9 @@ function checkCategory() {
 }
 
 function countBanner() {
-  if (fetchedImages.value.length >= 3) {
+  if (fetchedImages.value.length >= 5) {
     toast.add({
-      title: 'Cant add  more than 3',
+      title: 'Cant add  more than 5',
       color: 'red',
       icon: 'i-heroicons-x-circle',
     })

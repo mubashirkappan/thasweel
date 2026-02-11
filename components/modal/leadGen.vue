@@ -43,6 +43,7 @@ function submit() {
     phonenumber: unmaskedPhone.value,
     name: state.name,
     address: state.address || 'Nothing',
+    delivery_time: state.deliveryDate || 'Not specified',
     items: cartStore.itemsWithPrices,
     total_price: cartStore.totalAmount,
     shop_id: props.shopDetails.id,
@@ -56,10 +57,17 @@ function submit() {
       toast.add({ title: response.message, icon: 'i-heroicons-check-badge', color: 'green' })
       const message = generateMessage(body)
       cartStore.$reset()
+    
+      const cleanCC = String(props.shopDetails.country_code).replace(/\D/g, '')
+      const cleanPhone = String(props.shopDetails.phone).replace(/\D/g, '')
+
       setTimeout(() => {
-        const whatsappLink = `https://wa.me/${props.shopDetails.country_code}${props.shopDetails.phone}?text=${encodeURIComponent(message)}`
+        const whatsappLink = `https://wa.me/${cleanCC}${cleanPhone}?text=${encodeURIComponent(message)}`
+        
+        // Attempt to open the link
         window.open(whatsappLink, '_blank')
-        loading.value = false // Stop loading after the delay
+        
+        loading.value = false
       }, 1000)
     })
     .catch((error) => {
@@ -73,15 +81,25 @@ function submit() {
 }
 
 function generateMessage(data) {
+  // Use a clean phone number (no spaces or dashes)
+  const phone = unmaskedPhone.value || state.phoneNumber 
+  // Optional: Format the date to be more readable
+  const deliveryTime = state.deliveryDate ? state.deliveryDate.replace('T', ' ') : 'As soon as possible'
+
   let message = `Hi, I would like to place the following order:\n\n`
-  message += `Name: ${state.name}\n`
-  message += `Phone Number: ${unmaskedPhone.value}\n`
-  message += `Address: ${state.address}\n \n`
+  message += `*Name:* ${state.name}\n`
+  message += `*Phone:* ${phone}\n`
+  message += `*Address:* ${state.address}\n`
+  message += `*Delivery Time:* ${deliveryTime}\n\n`
+  
   data.items.forEach((item, index) => {
-    message += `${index + 1}. ${item.name}\n   - Quantity: ${item.quantity}\n   - Price (${item.quantity}*${item.pricePerItem}): ${item.totalPrice}\n\n`
+    message += `${index + 1}. *${item.name}*\n`
+    message += `   - Qty: ${item.quantity}\n`
+    message += `   - Price: ${cartStore.getCurrency}${item.totalPrice}\n\n`
   })
-  message += `Total Price: ${cartStore.getCurrency}${data.total_price}\n \n`
-  message += 'Please confirm the order and let me know the expected delivery time. Thank you!'
+  
+  message += `*Total Price: ${cartStore.getCurrency}${data.total_price}*\n\n`
+  message += 'Please confirm the order. Thank you!'
   return message
 }
 defineExpose({ unmaskedPhone })
@@ -150,6 +168,13 @@ function handleSlotClick() {
             </UFormGroup>
             <UFormGroup label="Address" name="address" class="w-full">
               <UInput v-model="state.address" />
+            </UFormGroup>
+            <UFormGroup label="Delivery Date & Time" name="deliveryDate" class="w-full">
+              <UInput 
+                v-model="state.deliveryDate" 
+                type="datetime-local" 
+                :min="new Date().toISOString().slice(0, 16)"
+              />
             </UFormGroup>
             <UButton label="Buy Now and Send Message" :loading size="xl" class="self-end" type="submit" />
           </UForm>

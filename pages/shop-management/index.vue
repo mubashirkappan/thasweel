@@ -39,7 +39,7 @@ function fetchData() {
 }
 function fetchShopList() {
   loading.value = true
-  $fetch(`${config.public.apiBaseUrl}/shop/list`, {
+  $fetch(`${config.public.apiBaseUrl}/shop/list?from=thasweel`, {
     headers: {
       Authorization: `Bearer ${token.value}`,
     },

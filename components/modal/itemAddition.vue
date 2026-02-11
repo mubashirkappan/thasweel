@@ -43,7 +43,16 @@ const toast = useToast()
 function changeFile(event) {
   state.image = event.target.files[0]
 }
-
+const initialState = {
+  name: '',
+  price: '',
+  dibi_price: '',
+  image: null,
+  count: '',
+  category_id: null,
+  active: true,
+  offer: false
+}
 async function submit() {
   const formData = new FormData()
   formData.append('name', state.name)
@@ -68,6 +77,7 @@ async function submit() {
     })
     toast.add({ title: response.data.message, icon: 'i-heroicons-check-badge' })
     emit('submitSuccess')
+    Object.assign(state, initialState)
     isOpen.value = false
   }
   catch (error) {
