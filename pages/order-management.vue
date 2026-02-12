@@ -110,6 +110,29 @@ function DeliverNow(id, shop_id) {
       loading.value = false
     })
 }
+function formatVisibleDate(dateStr, country) {
+  if (!dateStr) return null;
+  
+  const date = new Date(dateStr);
+  const now = new Date();
+  
+  // Basic formatting options
+  const options = {
+    day: 'numeric',
+    month: 'short', // "Jan", "Feb", etc.
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  };
+
+  // Check if it's today
+  if (date.toDateString() === now.toDateString()) {
+    return `Today at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}`;
+  }
+
+  const timeZone = countryTimeZones[country] || 'UTC';
+  return new Intl.DateTimeFormat('en-GB', { ...options, timeZone }).format(date);
+}
 
 onMounted(() => {
   fetchShopList()
@@ -139,6 +162,22 @@ onMounted(() => {
               <p class="text-gray-600">
                 Address: {{ order.address }}
               </p>
+              <div class="mt-4 pt-4 border-t border-gray-100 flex flex-wrap justify-between items-center gap-3">
+                
+                <div v-if="order.delivery_time" class="flex items-center gap-2">
+                  <span class="text-xs font-bold uppercase text-gray-400 tracking-wider">Estimated Delivery</span>
+                  <div class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-100 flex items-center gap-1 text-sm font-semibold">
+                    <Icon name="lucide:truck" class="w-4 h-4" />
+                    {{ formatVisibleDate(order.delivery_time, countryCode) }}
+                  </div>
+                </div>
+              
+                <div class="text-sm text-gray-500 flex items-center gap-1">
+                  <Icon name="lucide:calendar" class="w-4 h-4" />
+                  <span>Ordered: {{ formatVisibleDate(order.created_at, countryCode) }}</span>
+                </div>
+              
+              </div>
             </div>
             <div>
               <p class="text-lg font-semibold text-blue-600">
