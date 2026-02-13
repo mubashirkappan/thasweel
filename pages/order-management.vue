@@ -32,7 +32,11 @@ function formatDateToCountryTimeZone(date, country) {
     hour12: true,
   }).format(new Date(date))
 }
-
+const filterStatus = ref('all')
+const filteredOrders = computed(() => {
+  if (filterStatus.value === 'all') return fetchedOrderData.value
+  return fetchedOrderData.value.filter(order => order.status === filterStatus.value)
+})
 function fetchShopList() {
   loading.value = true
   $fetch(`${config.public.apiBaseUrl}/shop/list?from=thasweel`, {
@@ -140,95 +144,103 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="main-container py-10">
+  <div class="main-container py-10 bg-gray-50 min-h-screen">
     <div class="max-container">
+      
+      <div class="mb-6 flex gap-2 bg-white p-1 rounded-lg border border-gray-200 w-fit">
+        <button 
+          v-for="status in ['all', 'pending', 'deliverd']" 
+          :key="status"
+          @click="filterStatus = status"
+          :class="[
+            'px-4 py-2 rounded-md text-sm font-medium transition-all capitalize',
+            filterStatus === status ? 'bg-primary text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'
+          ]"
+        >
+          {{ status }}
+        </button>
+      </div>
+
       <div v-if="!loading" class="space-y-4">
         <div
-          v-for="(order, index) in fetchedOrderData"
+          v-for="(order, index) in filteredOrders"
           :key="order.id"
-          class="border border-gray-300 rounded-lg p-4 shadow-sm"
+          class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow"
         >
-          <div class="flex justify-between items-center">
-            <div>
-              <h3 class="text-lg font-semibold">
-                Order #{{ index + 1 }}
-              </h3>
-              <p class="text-gray-600">
-                {{ order.user_name }}
-              </p>
-              <p class="text-gray-600">
-                Phone: {{ order.user_phone_number }}
-              </p>
-              <p class="text-gray-600">
-                Address: {{ order.address }}
-              </p>
-              <div class="mt-4 pt-4 border-t border-gray-100 flex flex-wrap justify-between items-center gap-3">
-                
+          <div class="flex justify-between items-start">
+            <div class="space-y-1">
+              <div class="flex items-baseline gap-2">
+                <h3 class="text-xl font-bold text-gray-900">
+                  Order #{{ filteredOrders.length - index }}
+                </h3>
+                <span class="text-xs text-gray-400 font-mono">ID: {{ order.id }}</span>
+              </div>
+              
+              <div class="text-gray-700">
+                <p class="font-medium text-lg">{{ order.user_name }}</p>
+                <p class="flex items-center gap-1 text-sm"><Icon name="lucide:phone" class="w-3 h-3" /> {{ order.user_phone_number }}</p>
+                <p class="flex items-center gap-1 text-sm"><Icon name="lucide:map-pin" class="w-3 h-3" /> {{ order.address }}</p>
+              </div>
+
+              <div class="mt-4 pt-4 border-t border-gray-50 flex flex-wrap items-center gap-4">
                 <div v-if="order.delivery_time" class="flex items-center gap-2">
-                  <span class="text-xs font-bold uppercase text-gray-400 tracking-wider">Estimated Delivery</span>
-                  <div class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-100 flex items-center gap-1 text-sm font-semibold">
-                    <Icon name="lucide:truck" class="w-4 h-4" />
+                  <span class="text-[10px] font-bold uppercase text-gray-400 tracking-widest">Delivery</span>
+                  <div class="px-2 py-0.5 bg-blue-50 text-blue-700 rounded border border-blue-100 text-xs font-bold">
                     {{ formatVisibleDate(order.delivery_time, countryCode) }}
                   </div>
                 </div>
               
-                <div class="text-sm text-gray-500 flex items-center gap-1">
-                  <Icon name="lucide:calendar" class="w-4 h-4" />
-                  <span>Ordered: {{ formatVisibleDate(order.created_at, countryCode) }}</span>
+                <div class="text-xs text-gray-400 flex items-center gap-1">
+                  <Icon name="lucide:clock" class="w-3 h-3" />
+                  <span>Placed: {{ formatVisibleDate(order.created_at, countryCode) }}</span>
                 </div>
-              
               </div>
             </div>
-            <div>
-              <p class="text-lg font-semibold text-blue-600">
-                {{ order.total_price }} {{ cartStore.getCurrency }}
+
+            <div class="text-right">
+              <p class="text-2xl font-black text-primary">
+                {{ order.total_price }} <span class="text-sm font-normal uppercase">{{ cartStore.getCurrency }}</span>
               </p>
-              <div v-if="order.status === 'deliverd'" class="text-green-500">
-                Completed
-              </div>
-              <div v-else class="text-red-500">
-                Pending
-                <UButton
-                  :loading="loading"
-                  size="sm"
-                  @click="DeliverNow(order.id, order.shop_id)"
-                >
-                  <Icon name="lucide:shopping-cart" />
-                  Deliver Now
-                </UButton>
+              
+              <div class="mt-3">
+                <div v-if="order.status === 'deliverd'" class="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold uppercase">
+                  <Icon name="lucide:check-circle" />
+                  Completed
+                </div>
+                <div v-else class="flex flex-col items-end gap-2">
+                  <span class="inline-flex items-center gap-1 px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold uppercase">
+                    <Icon name="lucide:loader" class="animate-spin" />
+                    Pending
+                  </span>
+                  <UButton
+                    color="primary"
+                    variant="solid"
+                    size="md"
+                    class="mt-2"
+                    @click="DeliverNow(order.id, order.shop_id)"
+                  >
+                    Deliver Now
+                  </UButton>
+                </div>
               </div>
             </div>
           </div>
-          <div class="mt-4">
-            <h4 class="font-semibold">
-              Items:
-            </h4>
-            <ul class="list-disc pl-5 text-gray-800">
-              <li
-                v-for="item in order.items"
-                :key="item.id"
-                class="flex justify-between"
-              >
-                <span>
-                  {{ item.name }} ({{ item.quantity }} x {{ item.price_per_item }} {{ cartStore.getCurrency }})
-                </span>
-                <span class="font-semibold">{{ item.totalPrice }} {{ cartStore.getCurrency }}</span>
-              </li>
-            </ul>
-          </div>
-          <div class="mt-4 text-sm text-gray-500">
-            Order Date: {{ formatDateToCountryTimeZone(order.created_at, countryCode) }}
+
+          <div class="mt-6 bg-gray-50 rounded-lg p-4">
+            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Order Summary</h4>
+            <div v-for="item in order.items" :key="item.id" class="flex justify-between py-1 border-b border-gray-200 last:border-0 text-sm">
+              <span class="text-gray-600">
+                <span class="font-bold text-gray-900">{{ item.quantity }}x</span> {{ item.name }}
+              </span>
+              <span class="font-mono font-medium">{{ item.totalPrice }} {{ cartStore.getCurrency }}</span>
+            </div>
           </div>
         </div>
-      </div>
-      <div
-        v-else
-        class="w-screen h-screen flex items-center bg-white justify-center"
-      >
-        <Icon
-          name="i-mingcute-loading-line"
-          class="animate-spin text-[45px] text-primary"
-        />
+
+        <div v-if="filteredOrders.length === 0" class="text-center py-20 bg-white rounded-xl border-2 border-dashed border-gray-200">
+          <Icon name="lucide:package-open" class="text-5xl text-gray-300 mx-auto mb-4" />
+          <p class="text-gray-500">No {{ filterStatus }} orders found.</p>
+        </div>
       </div>
     </div>
   </div>

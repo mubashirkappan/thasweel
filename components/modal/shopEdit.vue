@@ -25,7 +25,7 @@ const state = reactive({
   km: null,
   place_id: null,
   take_away: false,
-  above_limit: undefined,
+  free_delivery_above: undefined,
   enc_id: false,
 })
 
@@ -39,7 +39,7 @@ watch(() => props.data, (newData) => {
   state.email = newData.email
   state.delivery = (newData.delivery === 1)
   state.km = newData.km
-  state.above_limit = newData.above_limit || 0
+  state.free_delivery_above = newData.free_delivery_above || 0
   state.logo_name = null
   state.place_id = newData.place_id
   state.enc_id = newData.encrypt_id
@@ -60,7 +60,7 @@ const schema = z.object({
   email: z.preprocess(val => val === '' ? undefined : val, z.string().email('Invalid email')),
   logo_name: z.any().optional(),
   delivery: z.boolean(),
-  above_limit: z.number(),
+  free_delivery_above: z.number(),
   km: z.number(), // take_away: z.boolean(),
 })
 
@@ -119,7 +119,7 @@ async function submit() {
   formData.append('delivery', state.delivery ? 1 : 0)
   formData.append('km', state.km || 0)
   formData.append('take_away', state.take_away ? 1 : 1)
-  formData.append('free_delivery_above', state.delivery === true ? state.above_limit : 0)
+  formData.append('free_delivery_above', state.delivery === true ? state.free_delivery_above : 0)
   formData.append('type_id', 1)
   loading.value = true
 
@@ -219,8 +219,8 @@ onMounted(() => {
         <UFormGroup v-if="state.delivery" label="Radius that you can Delivery" name="km">
           <UInput v-model="state.km" type="number" />
         </UFormGroup>
-        <UFormGroup v-if="state.delivery" label="Minimum amount Needed to free Delivery" description="If its fully free make it 0" name="above_limit">
-          <UInput v-model="state.above_limit" type="number" />
+        <UFormGroup v-if="state.delivery" label="Minimum amount Needed to free Delivery" description="If its fully free make it 0" name="free_delivery_above">
+          <UInput v-model="state.free_delivery_above" type="number" />
         </UFormGroup>
         <!-- <UFormGroup label="Take Away" name="take_away">
           <UToggle v-model="state.take_away" disabled />
