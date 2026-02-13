@@ -3,7 +3,7 @@
     <div class="py-3 w-full bg-primary">
       <div class="max-container mx-auto text-sm flex-col items-center text-white flex justify-center">
         <div>
-          Powered by Thasweel
+          Powered by Fooddly
         </div>
         <br>
         <div>

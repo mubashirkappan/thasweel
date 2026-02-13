@@ -111,7 +111,7 @@ async function submit() {
   formData.append('address', state.address)
   formData.append('landmark', state.landmark)
   formData.append('country_code', state.countryCode)
-  formData.append('phone', unmaskedPhone.value)
+  formData.append('phone', unmaskedPhone.value|| state.phoneNumber)
   formData.append('email', state.email)
   formData.append('logo', state.logo_name)
   formData.append('encrypted_id', state.enc_id)
