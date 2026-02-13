@@ -202,14 +202,18 @@ onMounted(() => {
         <UFormGroup label="Email" name="email">
           <UInput v-model="state.email" />
         </UFormGroup> -->
-        <!-- <div class="grid grid-cols-12 gap-3">
-          <UFormGroup label="Country Code" required name="countryCode" class="col-span-3">
-            <UInput v-model="state.countryCode" />
+        <div class="grid grid-cols-12 gap-3">
+          <UFormGroup label="Country Code" name="countryCode" class="col-span-3">
+            <UInput v-model="state.countryCode" disabled />
           </UFormGroup>
-          <UFormGroup label="Phone Number" required name="phoneNumber" class="col-span-9">
-            <UInput v-model="state.phoneNumber" v-maska:unmaskedPhone.unmasked="'##-###-#####'" />
+          <UFormGroup label="Phone Number" name="phoneNumber" class="col-span-9">
+            <UInput 
+              v-model="state.phoneNumber" 
+              v-maska:unmaskedPhone.unmasked="'##########'" 
+              disabled 
+            />
           </UFormGroup>
-        </div> -->
+        </div>
         <UFormGroup label="Logo" required name="logo">
           <input type="file" @change="changeFile">
         </UFormGroup>

@@ -17,7 +17,10 @@
       </div>
     </div>
     <div class="py-3 w-full bg-primary">
-      <div class="max-container mx-auto text-sm text-white flex justify-center">
+    <div class="max-container mx-auto text-sm text-white flex flex-col items-center justify-center gap-1">
+        <div>
+          Powered by Fooddly
+        </div>
         <div>
           © 2024 All Rights Reserved.
         </div>
