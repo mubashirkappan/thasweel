@@ -154,6 +154,10 @@ onMounted(() => {
               <UButton size="xl" variant="solid" class="bg-primary hover:bg-primary/80" @click="editItem(items)">
                 <Icon name="i-heroicons-pencil-square" />
               </UButton>
+              <UButton size="xl" variant="solid" class="bg-amber-500 hover:bg-amber-500/80" to="/order-management">
+                <Icon name="lucide:clipboard-list" />
+                <span class="hidden sm:inline ml-1">Orders</span>
+              </UButton>
             </div>
           </div>
           <div class="flex items-center justify-center flex-col w-full bg-[#fc544c44] p-4 gap-5 mt-3 rounded-xl">
