@@ -38,22 +38,34 @@ const filteredOrders = computed(() => {
   if (filterStatus.value === 'all') return fetchedOrderData.value
   return fetchedOrderData.value.filter(order => order.status === filterStatus.value)
 })
+// Normalize 6-digit MySQL microseconds (e.g. .000000Z) → 3-digit JS milliseconds (.000Z)
+// new Date() is spec-compliant only with 3 digits; production Node.js SSR rejects 6 digits
+function parseDate(dateStr) {
+  if (!dateStr || dateStr === 'Not specified') return null
+  const normalized = String(dateStr).replace(/(\.(\d{3}))\d+/, '$1')
+  const d = new Date(normalized)
+  return isNaN(d.getTime()) ? null : d
+}
 function isValidDate(dateStr) {
-  if (!dateStr || dateStr === 'Not specified') return false
-  const d = new Date(dateStr)
-  return !isNaN(d.getTime())
+  return parseDate(dateStr) !== null
 }
 function formatVisibleDate(dateStr, country) {
-  if (!isValidDate(dateStr)) return null
-  const date = new Date(dateStr)
+  const date = parseDate(dateStr)
+  if (!date) return null
   const now = new Date()
   if (date.toDateString() === now.toDateString()) {
     return `Today at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}`
   }
-  const timeZone = countryTimeZones[country] || 'UTC'
-  return new Intl.DateTimeFormat('en-GB', {
-    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: true, timeZone,
-  }).format(date)
+  try {
+    const timeZone = countryTimeZones[country] || 'UTC'
+    return new Intl.DateTimeFormat('en-GB', {
+      day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: true, timeZone,
+    }).format(date)
+  }
+  catch {
+    // Fallback if timezone not in Node ICU data
+    return date.toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: true })
+  }
 }
 
 function fetchData() {
