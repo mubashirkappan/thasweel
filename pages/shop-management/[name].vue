@@ -38,8 +38,13 @@ const filteredOrders = computed(() => {
   if (filterStatus.value === 'all') return fetchedOrderData.value
   return fetchedOrderData.value.filter(order => order.status === filterStatus.value)
 })
+function isValidDate(dateStr) {
+  if (!dateStr || dateStr === 'Not specified') return false
+  const d = new Date(dateStr)
+  return !isNaN(d.getTime())
+}
 function formatVisibleDate(dateStr, country) {
-  if (!dateStr) return null
+  if (!isValidDate(dateStr)) return null
   const date = new Date(dateStr)
   const now = new Date()
   if (date.toDateString() === now.toDateString()) {
@@ -538,7 +543,7 @@ onMounted(() => {
                     <p class="flex items-center gap-1 text-sm"><Icon name="lucide:map-pin" class="w-3 h-3" /> {{ order.address }}</p>
                   </div>
                   <div class="mt-4 pt-4 border-t border-gray-50 flex flex-wrap items-center gap-4">
-                    <div v-if="order.delivery_time" class="flex items-center gap-2">
+                    <div v-if="isValidDate(order.delivery_time)" class="flex items-center gap-2">
                       <span class="text-[10px] font-bold uppercase text-gray-400 tracking-widest">Delivery</span>
                       <div class="px-2 py-0.5 bg-blue-50 text-blue-700 rounded border border-blue-100 text-xs font-bold">
                         {{ formatVisibleDate(order.delivery_time, fetchedShopData.currency) }}

@@ -120,28 +120,30 @@ function DeliverNow(id, shop_id) {
       loading.value = false
     })
 }
+function isValidDate(dateStr) {
+  if (!dateStr || dateStr === 'Not specified') return false
+  const d = new Date(dateStr)
+  return !isNaN(d.getTime())
+}
 function formatVisibleDate(dateStr, country) {
-  if (!dateStr) return null;
-  
-  const date = new Date(dateStr);
-  const now = new Date();
-  
-  // Basic formatting options
-  const options = {
-    day: 'numeric',
-    month: 'short', // "Jan", "Feb", etc.
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true
-  };
+  if (!isValidDate(dateStr)) return null
 
-  // Check if it's today
+  const date = new Date(dateStr)
+  const now = new Date()
+
   if (date.toDateString() === now.toDateString()) {
-    return `Today at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}`;
+    return `Today at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}`
   }
 
-  const timeZone = countryTimeZones[country] || 'UTC';
-  return new Intl.DateTimeFormat('en-GB', { ...options, timeZone }).format(date);
+  const timeZone = countryTimeZones[country] || 'UTC'
+  return new Intl.DateTimeFormat('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+    timeZone,
+  }).format(date)
 }
 
 onMounted(() => {
@@ -203,7 +205,7 @@ onMounted(() => {
               </div>
 
               <div class="mt-4 pt-4 border-t border-gray-50 flex flex-wrap items-center gap-4">
-                <div v-if="order.delivery_time" class="flex items-center gap-2">
+                <div v-if="isValidDate(order.delivery_time)" class="flex items-center gap-2">
                   <span class="text-[10px] font-bold uppercase text-gray-400 tracking-widest">Delivery</span>
                   <div class="px-2 py-0.5 bg-blue-50 text-blue-700 rounded border border-blue-100 text-xs font-bold">
                     {{ formatVisibleDate(order.delivery_time, countryCode) }}
