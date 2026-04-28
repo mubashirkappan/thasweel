@@ -4,6 +4,7 @@ import { useCartStore } from '/composables/cartData'
 const cartStore = useCartStore()
 const authStatus = useAuth()
 const loading = ref(true)
+const fetchError = ref(null)
 const config = useRuntimeConfig()
 const { token } = storeToRefs(authStatus)
 const toast = useToast()
@@ -47,20 +48,22 @@ function fetchShopList() {
   })
     .then((response) => {
       fetchedShopData.value = response.data
-      shopId.value = fetchedShopData.value[0].id
-      countryCode.value = fetchedShopData.value[0].currency
-      cartStore.setCurrency(fetchedShopData.value[0].currency)
+      shopId.value = fetchedShopData.value[0]?.id
+      countryCode.value = fetchedShopData.value[0]?.currency
+      cartStore.setCurrency(fetchedShopData.value[0]?.currency)
       if (shopId.value)
         fetchOrder(shopId.value)
+      else
+        loading.value = false
     })
-    .catch(({ data }) => {
+    .catch((err) => {
+      const msg = err?.data?.message || err?.message || 'Failed to load shops.'
+      fetchError.value = msg
       toast.add({
-        title: data.message,
+        title: msg,
         color: 'red',
         icon: 'i-heroicons-x-circle',
       })
-    })
-    .finally(() => {
       loading.value = false
     })
 }
@@ -76,9 +79,11 @@ function fetchOrder(id) {
     .then((response) => {
       fetchedOrderData.value = response.data
     })
-    .catch(({ data }) => {
+    .catch((err) => {
+      const msg = err?.data?.message || err?.message || 'Failed to load orders.'
+      fetchError.value = msg
       toast.add({
-        title: data.message,
+        title: msg,
         color: 'red',
         icon: 'i-heroicons-x-circle',
       })
@@ -103,9 +108,10 @@ function DeliverNow(id, shop_id) {
     .then((response) => {
       fetchOrder(shop_id)
     })
-    .catch(({ data }) => {
+    .catch((err) => {
+      const msg = err?.data?.response || err?.data?.message || err?.message || 'Failed to update order.'
       toast.add({
-        title: data.response,
+        title: msg,
         color: 'red',
         icon: 'i-heroicons-x-circle',
       })
@@ -146,22 +152,36 @@ onMounted(() => {
 <template>
   <div class="main-container py-10 bg-gray-50 min-h-screen">
     <div class="max-container">
-      
-      <div class="mb-6 flex gap-2 bg-white p-1 rounded-lg border border-gray-200 w-fit">
-        <button 
-          v-for="status in ['all', 'pending', 'deliverd']" 
-          :key="status"
-          @click="filterStatus = status"
-          :class="[
-            'px-4 py-2 rounded-md text-sm font-medium transition-all capitalize',
-            filterStatus === status ? 'bg-primary text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'
-          ]"
-        >
-          {{ status }}
-        </button>
+
+      <!-- Loading spinner -->
+      <div v-if="loading" class="h-60 flex items-center justify-center">
+        <Icon name="i-mingcute-loading-line" class="animate-spin text-[45px] text-primary" />
       </div>
 
-      <div v-if="!loading" class="space-y-4">
+      <!-- Error state -->
+      <div v-else-if="fetchError" class="flex flex-col items-center justify-center py-20 gap-3">
+        <Icon name="i-heroicons-exclamation-triangle" class="text-5xl text-red-400" />
+        <p class="text-gray-500 text-center">{{ fetchError }}</p>
+        <UButton size="md" @click="fetchShopList()">Retry</UButton>
+      </div>
+
+      <!-- Main content -->
+      <div v-else>
+        <div class="mb-6 flex gap-2 bg-white p-1 rounded-lg border border-gray-200 w-fit">
+          <button 
+            v-for="status in ['all', 'pending', 'deliverd']" 
+            :key="status"
+            @click="filterStatus = status"
+            :class="[
+              'px-4 py-2 rounded-md text-sm font-medium transition-all capitalize',
+              filterStatus === status ? 'bg-primary text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'
+            ]"
+          >
+            {{ status }}
+          </button>
+        </div>
+
+        <div class="space-y-4">
         <div
           v-for="(order, index) in filteredOrders"
           :key="order.id"
@@ -235,11 +255,12 @@ onMounted(() => {
               <span class="font-mono font-medium">{{ item.totalPrice }} {{ cartStore.getCurrency }}</span>
             </div>
           </div>
-        </div>
+          </div>
 
-        <div v-if="filteredOrders.length === 0" class="text-center py-20 bg-white rounded-xl border-2 border-dashed border-gray-200">
-          <Icon name="lucide:package-open" class="text-5xl text-gray-300 mx-auto mb-4" />
-          <p class="text-gray-500">No {{ filterStatus }} orders found.</p>
+          <div v-if="filteredOrders.length === 0" class="text-center py-20 bg-white rounded-xl border-2 border-dashed border-gray-200">
+            <Icon name="lucide:package-open" class="text-5xl text-gray-300 mx-auto mb-4" />
+            <p class="text-gray-500">No {{ filterStatus }} orders found.</p>
+          </div>
         </div>
       </div>
     </div>

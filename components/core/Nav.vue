@@ -46,6 +46,7 @@ if (route.query.mode === 'register')
 function logOut() {
   loggedIn.value = false
   token.value = null
+  navigateTo('/')
 }
 
 onMounted(() => {

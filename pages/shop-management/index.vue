@@ -134,36 +134,38 @@ onMounted(() => {
         <div class="text-2xl font-bold">
           Shops Under you
         </div>
-        <div v-for="items in fetchedShopData" :key="items.slug" class="w-full border px-3 py-5 gap-2 items-center border-black/50 rounded-md  grid md:grid-cols-12">
-          <NuxtLink :to="`shop-management/${items.slug}`" class=" flex justify-between max-md:flex-col max-md:items-center md:col-span-10">
-            <div v-if="items.name" class="text-primary font-bold text-xl">
-              {{ items.name }}
+        <div v-for="items in fetchedShopData" :key="items.slug" class="w-full border px-3 py-5 gap-2 border-black/50 rounded-md flex flex-col">
+          <div class="flex items-center justify-between gap-2">
+            <NuxtLink :to="`shop-management/${items.slug}`" class="flex justify-between max-md:flex-col max-md:items-center flex-1">
+              <div v-if="items.name" class="text-primary font-bold text-xl">
+                {{ items.name }}
+              </div>
+              <div v-if="items.email">
+                {{ items.email }}
+              </div>
+              <div v-if="items.phone">
+                {{ items.phone }}
+              </div>
+            </NuxtLink>
+            <div class="flex gap-2 items-center">
+              <!-- <UButton size="xl" variant="solid" class="bg-red-500 hover:bg-red-500/80" @click="deleteItem(items.encrypt_id)">
+                <Icon name="i-heroicons-trash" />
+              </UButton> -->
+              <UButton size="xl" variant="solid" class="bg-primary hover:bg-primary/80" @click="editItem(items)">
+                <Icon name="i-heroicons-pencil-square" />
+              </UButton>
             </div>
-            <div v-if="items.email">
-              {{ items.email }}
+          </div>
+          <div class="flex items-center justify-center flex-col w-full bg-[#fc544c44] p-4 gap-5 mt-3 rounded-xl">
+            <div class="font-bold text-xl md:text-2xl text-center">
+              Share Your Business with Others
             </div>
-            <div v-if="items.phone">
-              {{ items.phone }}
-            </div>
-          </NuxtLink>
-          <div class="max-md:flex-col w-full gap-2 md:col-span-2 flex items-center justify-center">
-            <!-- <UButton size="xl" variant="solid" class="bg-red-500 hover:bg-red-500/80" @click="deleteItem(items.encrypt_id)">
-              <Icon name="i-heroicons-trash" />
-            </UButton> -->
-            <UButton size="xl" variant="solid" class="bg-primary hover:bg-primary/80" @click="editItem(items)">
-              <Icon name="i-heroicons-pencil-square" />
-            </UButton>
+            <ProfileQrcode :slug="items.slug" />
           </div>
         </div>
         <!-- <UButton size="xl" class=" text-lg mt-3 my-auto" @click="openModal()">
           Add more
         </UButton> -->
-        <div class="flex items-center justify-center flex-col w-full bg-[#fc544c44] p-4 gap-5  mt-10 rounded-xl">
-          <div class="font-bold text-xl md:text-3xl text-center">
-            Share Your Business with Others
-          </div>
-          <ProfileQrcode :slug="fetchedShopData[0].slug " />
-        </div>
       </div>
       <div v-else class="flex flex-col items-center justify-center gap-3">
         <div
