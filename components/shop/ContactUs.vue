@@ -73,9 +73,9 @@ defineExpose({ unmaskedPhone })
         <div class="bg-green-100 p-4 rounded-full">
           <UIcon name="i-heroicons-check-circle-solid" class="text-6xl text-green-600" />
         </div>
-        <h2 class="text-2xl font-bold text-green-700 text-center">Registration Completed!</h2>
+        <h2 class="text-2xl font-bold text-green-700 text-center">Message Sent Successfully!</h2>
         <p class="text-gray-600 text-center max-w-xs">
-          Thank you! We have received your details and will connect with you shortly.
+          Thank you for reaching out! Our team will review your message and get back to you shortly.
         </p>
         <!-- <UButton 
           variant="ghost" 
