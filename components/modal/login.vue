@@ -96,7 +96,7 @@ function handleSlotClick() {
         Log in
       </div>
       <UForm :state="state" class="space-y-4" :schema="schema" @submit="submit">
-        <UFormGroup label="Phone Number/ Email Address" name="identifier" required>
+        <UFormGroup label="Username" name="identifier" required>
           <UInput v-model="state.identifier" />
         </UFormGroup>
         <UFormGroup label="Password" name="password" required>
