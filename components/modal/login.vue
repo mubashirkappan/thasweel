@@ -16,17 +16,10 @@ const state = reactive({
   identifier: undefined,
   password: undefined,
 })
-const schema = z
-  .object({
-    identifier: z.string().refine((val) => {
-      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)
-      const isPhoneNumber = /^\d{10}$/.test(val)
-      return isEmail || isPhoneNumber
-    }, {
-      message: 'Must be a valid email or a 10-digit phone number',
-    }),
-    password: z.string().min(8, 'Must be at least 8 characters'),
-  })
+const schema = z.object({
+  identifier: z.string().min(1, 'Username is required'),
+  password: z.string().min(8, 'Must be at least 8 characters'),
+})
 
 const config = useRuntimeConfig()
 const loading = ref(false)
