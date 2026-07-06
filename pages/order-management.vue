@@ -241,7 +241,6 @@ onMounted(() => { fetchShopList() })
                   <h3 class="text-xl font-bold text-gray-900">
                     Order #{{ filteredOrders.length - index }}
                   </h3>
-                  // <span class="text-xs text-gray-400 font-mono">ID: {{ order.id }}</span>
                 </div>
 
                 <div class="text-gray-700">
