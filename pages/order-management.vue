@@ -23,6 +23,7 @@ const countryTimeZones = {
   SAR: 'Asia/Riyadh',
   QAR: 'Asia/Qatar',
   BHR: 'Asia/Bahrain',
+  BD: 'Asia/Bahrain',
 }
 
 const filterStatus = ref('all')
