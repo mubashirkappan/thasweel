@@ -112,11 +112,24 @@ function isValidDate(dateStr) { return parseDate(dateStr) !== null }
 function formatVisibleDate(dateStr, country) {
   const date = parseDate(dateStr)
   if (!date) return null
+  
   const now = new Date()
-  if (date.toDateString() === now.toDateString())
-    return `Today at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}`
+  
+  // 1. Get the target timezone immediately
+  const timeZone = countryTimeZones[country] || 'UTC'
+
+  // 2. Format short comparison strings using the target timezone 
+  // (Prevents local midnight differences from breaking the "Today" match)
+  const todayTargetStr = new Intl.DateTimeFormat('en-GB', { year: 'numeric', month: 'numeric', day: 'numeric', timeZone }).format(now)
+  const dateTargetStr = new Intl.DateTimeFormat('en-GB', { year: 'numeric', month: 'numeric', day: 'numeric', timeZone }).format(date)
+
+  // 3. If it's today in the target timezone, apply target timezone to the clock time
+  if (dateTargetStr === todayTargetStr) {
+    return `Today at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true, timeZone })}`
+  }
+
+  // 4. Otherwise, format the full date using the target timezone
   try {
-    const timeZone = countryTimeZones[country] || 'UTC'
     return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: true, timeZone }).format(date)
   }
   catch {
@@ -228,7 +241,7 @@ onMounted(() => { fetchShopList() })
                   <h3 class="text-xl font-bold text-gray-900">
                     Order #{{ filteredOrders.length - index }}
                   </h3>
-                  <span class="text-xs text-gray-400 font-mono">ID: {{ order.id }}</span>
+                  // <span class="text-xs text-gray-400 font-mono">ID: {{ order.id }}</span>
                 </div>
 
                 <div class="text-gray-700">
