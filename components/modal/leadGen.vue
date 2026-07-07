@@ -133,18 +133,55 @@ function handleSlotClick() {
       <div class="py-2  text-xl md:text-3xl text-center font-bold">
         Check Out
       </div>
-      <div class="grid md:grid-cols-2 gap-3 md:gap-10">
-        <div class="border border-red-500  rounded-xl p-4 md:my-3">
-          <div class=" text-lg md:text-xl font-semibold ">
-            Items List
-          </div>
-          <div class="flex flex-col max-h-[200px] md:max-h-[calc(100%-50px)] md:h-full overflow-scroll w-full py-3">
-          <div v-for="item in cartStore.itemsWithPrices" :key="item.name" class="flex justify-between w-full">
-              <span>{{ item.name }}</span>
-            <div>
-                {{ item.quantity }} x {{ Number(item.pricePerItem).toFixed(3) }} = {{ Number(item.totalPrice).toFixed(3) }}
-            </div>
-          </div>
+<div class="grid md:grid-cols-2 gap-3 md:gap-10">
+  <div class="border border-red-500 rounded-xl p-4 md:my-3">
+    <div class="text-lg md:text-xl font-semibold">
+      Items List
+    </div>
+    
+    <div class="flex flex-col max-h-[200px] md:max-h-[calc(100%-50px)] md:h-full overflow-scroll w-full py-3">
+      <div v-for="item in cartStore.itemsWithPrices" :key="item.name" class="flex justify-between w-full">
+        <span>{{ item.name }}</span>
+        <div>
+          {{ item.quantity }} x {{ Number(item.pricePerItem).toFixed(3) }} = {{ Number(item.totalPrice).toFixed(3) }}
+        </div>
+      </div>
+    </div> <UDivider size="lg" type="dotted" />
+    
+    <div class="flex justify-between w-full pt-2">
+      <span class="font-semibold">Total</span>
+      <div class="font-bold">
+        {{ cartStore.getCurrency }} {{ Number(cartStore.totalAmount).toFixed(3) }}
+      </div>
+    </div>
+  </div>
+
+  <div class="border border-red-500 rounded-xl p-4 md:my-3 flex flex-col items-center justify-center">
+    <UForm :state="state" class="space-y-4 flex items-center justify-center flex-col w-full" :schema="schema" @submit="submit">
+      <UFormGroup label="Phone Number" required name="phoneNumber" class="w-full">
+        <UInput v-model="state.phoneNumber" v-maska:unmaskedPhone.unmasked="'##-###-#####'" />
+      </UFormGroup>
+      
+      <UFormGroup label="Name" required name="name" class="w-full">
+        <UInput v-model="state.name" />
+      </UFormGroup>
+      
+      <UFormGroup label="Address" name="address" class="w-full">
+        <UInput v-model="state.address" />
+      </UFormGroup>
+      
+      <UFormGroup label="Delivery Date & Time" name="deliveryDate" class="w-full">
+        <UInput 
+          v-model="state.deliveryDate" 
+          type="datetime-local" 
+          :min="new Date().toISOString().slice(0, 16)"
+        />
+      </UFormGroup>
+      
+      <UButton label="Buy Now and Send Message" :loading size="xl" class="self-end" type="submit" />
+    </UForm>
+  </div>
+</div>
           </div>
           <UDivider size="lg" type="dotted" />
           <div class="flex justify-between w-full">
