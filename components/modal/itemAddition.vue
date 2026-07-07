@@ -22,8 +22,8 @@ const state = reactive({
 })
 const schema = z.object({
   name: z.string().min(2, 'Must be at least 2 characters'),
-  price: z.number().positive("Price must be a positive number"),
-  dibi_price: z.number().positive("Price must be a positive number"),
+  price: z.coerce.number().positive("Price must be a positive number"),
+  dibi_price: z.coerce.number().positive("Price must be a positive number"),
   image: z.any(),
   count: z.number(),
   active: z.boolean(),
