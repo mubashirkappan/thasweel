@@ -139,14 +139,12 @@ function handleSlotClick() {
             Items List
           </div>
           <div class="flex flex-col max-h-[200px] md:max-h-[calc(100%-50px)] md:h-full overflow-scroll w-full py-3">
-            <div v-for="item in cartStore.itemsWithPrices" :key="item" class="flex justify-between w-full">
-              <span>
-                {{ item.name }}
-              </span>
-              <div>
-                {{ item.quantity }} x {{ item.pricePerItem }}={{ item.totalPrice }}
-              </div>
+          <div v-for="item in cartStore.itemsWithPrices" :key="item.name" class="flex justify-between w-full">
+              <span>{{ item.name }}</span>
+            <div>
+                {{ item.quantity }} x {{ Number(item.pricePerItem).toFixed(3) }} = {{ Number(item.totalPrice).toFixed(3) }}
             </div>
+          </div>
           </div>
           <UDivider size="lg" type="dotted" />
           <div class="flex justify-between w-full">

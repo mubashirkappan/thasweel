@@ -1,5 +1,6 @@
 <script setup>
 import { useCartStore } from '/composables/cartData'
+import { watchEffect } from 'vue'
 
 const props = defineProps({
   data: Object,
@@ -17,6 +18,11 @@ onMounted(() => {
     acc[key] = 1
     return acc
   }, {})
+})
+watchEffect(() => {
+  if (props.shopDetails?.id) {
+    cartStore.initShopCart(props.shopDetails.id)
+  }
 })
 function submit(itemName, quantity, price) {
   loading.value = true
