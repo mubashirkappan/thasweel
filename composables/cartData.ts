@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 
 interface CartItem {
-  currency:string;
+  currency: string;
   name: string;
   count: number;
   price: number;
@@ -13,26 +13,32 @@ export const useCartStore = defineStore('cartStore', {
   },
   state: () => ({
     cartItems: [] as CartItem[],
-    activeShopId: null as string | number | null, // Track which shop this cart belongs to
+    activeShopId: null as string | number | null, // Tracks shop context
     currency: '',
   }),
   actions: {
     initShopCart(shopId: string | number) {
-      if (this.activeShopId && this.activeShopId !== shopId) {
-        // If switching to a different shop, clear the previous shop's items automatically
+      // CRITICAL FIX: If the shop ID changes, clear out the old shop's items immediately
+      if (this.activeShopId && String(this.activeShopId) !== String(shopId)) {
         this.cartItems = [];
       }
       this.activeShopId = shopId;
     },
     addItem(itemName: string, quantity: number = 1, price: number, shopId: string | number) {
-      this.initShopCart(shopId); // Ensure shop context matches
+      this.initShopCart(shopId); // Sync shop context
 
       const existingItem = this.cartItems.find((i) => i.name === itemName);
+
       if (existingItem) {
         existingItem.count = Number(quantity);
         existingItem.price = Number(price);
       } else {
-        this.cartItems.push({ name: itemName, count: Number(quantity), price: Number(price), currency: this.currency });
+        this.cartItems.push({ 
+          name: itemName, 
+          count: Number(quantity), 
+          price: Number(price), 
+          currency: this.currency 
+        });
       }
     },
     updateItem(itemName: string, quantity: number, price?: number) {
@@ -52,7 +58,6 @@ export const useCartStore = defineStore('cartStore', {
     },
     removeItem(itemName: string) {
       const index = this.cartItems.findIndex((i) => i.name === itemName);
-
       if (index !== -1) {
         this.cartItems.splice(index, 1);
       }
@@ -71,20 +76,20 @@ export const useCartStore = defineStore('cartStore', {
     itemsWithPrices(): { name: string; pricePerItem: number; quantity: number; totalPrice: number }[] {
       return this.cartItems.map((item) => ({
         name: item.name,
-        pricePerItem: Number(item.price),  // Changed from Math.round to support floats
+        pricePerItem: Number(item.price), // FIXED: Kept as decimal float
         quantity: item.count,
-        totalPrice: Number(item.price) * item.count, // Changed from Math.round
+        totalPrice: Number(item.price) * item.count, // FIXED: Kept as decimal float
       }));
     },
     totalAmount(): number {
-      // Changed from Math.round to support floating-point reduction totals
+      // FIXED: Calculated using precise floats
       return this.cartItems.reduce((total, item) => total + item.count * Number(item.price), 0);
     },
     productCount(): number {
       return this.cartItems.length;
     },
     getCurrency(): string {
-      return this.currency;
+      return this.currency || '';
     },
   },
 });

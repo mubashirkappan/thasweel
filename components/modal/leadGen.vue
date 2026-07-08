@@ -15,32 +15,35 @@ const props = defineProps({
     type: Object,
   },
 })
+
+const cartStore = useCartStore()
+
 watchEffect(() => {
   if (props.shopDetails?.id) {
     cartStore.initShopCart(props.shopDetails.id)
   }
 })
+
 const unmaskedPhone = ref('')
 const leadGen = ref(false)
-const cartStore = useCartStore()
 
 const state = reactive({
   phoneNumber: undefined,
   name: undefined,
   address: null,
+  deliveryDate: undefined
 })
 
-const schema = z
-  .object({
-    phoneNumber: z.string(),
-    name: z.string().min(2, 'Must be at least 2 characters'),
-    address: z.string().nullish(),
-  })
+const schema = z.object({
+  phoneNumber: z.string().min(5, 'Invalid phone number'),
+  name: z.string().min(2, 'Must be at least 2 characters'),
+  address: z.string().nullish(),
+})
 
-// const config = useRuntimeConfig()
 const loading = ref(false)
 const toast = useToast()
 const config = useRuntimeConfig()
+
 function submit() {
   loading.value = true
 
@@ -62,21 +65,19 @@ function submit() {
       toast.add({ title: response.message, icon: 'i-heroicons-check-badge', color: 'green' })
       const message = generateMessage(body)
       cartStore.$reset()
+      leadGen.value = false
     
       const cleanCC = String(props.shopDetails.country_code).replace(/\D/g, '')
       const cleanPhone = String(props.shopDetails.phone).replace(/\D/g, '')
 
       setTimeout(() => {
         const whatsappLink = `https://wa.me/${cleanCC}${cleanPhone}?text=${encodeURIComponent(message)}`
-        
-        // Attempt to open the link
         window.open(whatsappLink, '_blank')
-        
         loading.value = false
       }, 1000)
     })
     .catch((error) => {
-      console.error('Failed to submit order:', error) // Log the entire error object
+      console.error('Failed to submit order:', error)
       const errorMessage = error?.data?.message || 'An unknown error occurred'
       toast.add({ title: errorMessage, color: 'red', icon: 'i-heroicons-x-circle' })
     })
@@ -86,9 +87,7 @@ function submit() {
 }
 
 function generateMessage(data) {
-  // Use a clean phone number (no spaces or dashes)
   const phone = unmaskedPhone.value || state.phoneNumber 
-  // Optional: Format the date to be more readable
   const deliveryTime = state.deliveryDate ? state.deliveryDate.replace('T', ' ') : 'As soon as possible'
 
   let message = `Hi, I would like to place the following order:\n\n`
@@ -100,13 +99,14 @@ function generateMessage(data) {
   data.items.forEach((item, index) => {
     message += `${index + 1}. *${item.name}*\n`
     message += `   - Qty: ${item.quantity}\n`
-    message += `   - Price: ${cartStore.getCurrency}${item.totalPrice}\n\n`
+    message += `   - Price: ${cartStore.getCurrency}${Number(item.totalPrice).toFixed(3)}\n\n`
   })
   
-  message += `*Total Price: ${cartStore.getCurrency}${data.total_price}*\n\n`
+  message += `*Total Price: ${cartStore.getCurrency}${Number(data.total_price).toFixed(3)}*\n\n`
   message += 'Please confirm the order. Thank you!'
   return message
 }
+
 defineExpose({ unmaskedPhone })
 
 function handleSlotClick() {
@@ -127,7 +127,7 @@ function handleSlotClick() {
   </UButton>
 
   <UModal v-model="leadGen" :ui="{ width: 'sm:max-w-[1000px]' }">
-    <div class="relative  p-4">
+    <div class="relative p-4">
       <UButton
         color="gray"
         variant="ghost"
@@ -135,71 +135,39 @@ function handleSlotClick() {
         class="-my-1 absolute top-2 right-1"
         @click="leadGen = false"
       />
-      <div class="py-2  text-xl md:text-3xl text-center font-bold">
+      <div class="py-2 text-xl md:text-3xl text-center font-bold">
         Check Out
       </div>
-<div class="grid md:grid-cols-2 gap-3 md:gap-10">
-  <div class="border border-red-500 rounded-xl p-4 md:my-3">
-    <div class="text-lg md:text-xl font-semibold">
-      Items List
-    </div>
-    
-    <div class="flex flex-col max-h-[200px] md:max-h-[calc(100%-50px)] md:h-full overflow-scroll w-full py-3">
-      <div v-for="item in cartStore.itemsWithPrices" :key="item.name" class="flex justify-between w-full">
-        <span>{{ item.name }}</span>
-        <div>
-          {{ item.quantity }} x {{ Number(item.pricePerItem).toFixed(3) }} = {{ Number(item.totalPrice).toFixed(3) }}
-        </div>
-      </div>
-    </div> <UDivider size="lg" type="dotted" />
-    
-    <div class="flex justify-between w-full pt-2">
-      <span class="font-semibold">Total</span>
-      <div class="font-bold">
-        {{ cartStore.getCurrency }} {{ Number(cartStore.totalAmount).toFixed(3) }}
-      </div>
-    </div>
-  </div>
-
-  <div class="border border-red-500 rounded-xl p-4 md:my-3 flex flex-col items-center justify-center">
-    <UForm :state="state" class="space-y-4 flex items-center justify-center flex-col w-full" :schema="schema" @submit="submit">
-      <UFormGroup label="Phone Number" required name="phoneNumber" class="w-full">
-        <UInput v-model="state.phoneNumber" v-maska:unmaskedPhone.unmasked="'##-###-#####'" />
-      </UFormGroup>
       
-      <UFormGroup label="Name" required name="name" class="w-full">
-        <UInput v-model="state.name" />
-      </UFormGroup>
-      
-      <UFormGroup label="Address" name="address" class="w-full">
-        <UInput v-model="state.address" />
-      </UFormGroup>
-      
-      <UFormGroup label="Delivery Date & Time" name="deliveryDate" class="w-full">
-        <UInput 
-          v-model="state.deliveryDate" 
-          type="datetime-local" 
-          :min="new Date().toISOString().slice(0, 16)"
-        />
-      </UFormGroup>
-      
-      <UButton label="Buy Now and Send Message" :loading size="xl" class="self-end" type="submit" />
-    </UForm>
-  </div>
-</div>
+      <div class="grid md:grid-cols-2 gap-3 md:gap-10">
+        <!-- Items Column -->
+        <div class="border border-red-500 rounded-xl p-4 md:my-3">
+          <div class="text-lg md:text-xl font-semibold">
+            Items List
           </div>
+          
+          <div class="flex flex-col max-h-[200px] md:max-h-[calc(100%-50px)] md:h-full overflow-scroll w-full py-3">
+            <div v-for="item in cartStore.itemsWithPrices" :key="item.name" class="flex justify-between w-full">
+              <span>{{ item.name }}</span>
+              <div>
+                {{ item.quantity }} x {{ Number(item.pricePerItem).toFixed(3) }} = {{ Number(item.totalPrice).toFixed(3) }}
+              </div>
+            </div>
+          </div> 
+          
           <UDivider size="lg" type="dotted" />
-          <div class="flex justify-between w-full">
-            <span>
-              Total
-            </span>
-            <div>
-              {{ cartStore.getCurrency }} {{ cartStore.totalAmount }}
+          
+          <div class="flex justify-between w-full pt-2">
+            <span class="font-semibold">Total</span>
+            <div class="font-bold">
+              {{ cartStore.getCurrency }} {{ Number(cartStore.totalAmount).toFixed(3) }}
             </div>
           </div>
         </div>
-        <div class="border border-red-500  rounded-xl p-4 md:my-3 flex flex-col items-center justify-center">
-          <UForm :state="state" class="space-y-4 flex items-center justify-center flex-col w-full " :schema="schema" @submit="submit">
+        
+        <!-- Form Column -->
+        <div class="border border-red-500 rounded-xl p-4 md:my-3 flex flex-col items-center justify-center">
+          <UForm :state="state" class="space-y-4 flex items-center justify-center flex-col w-full" :schema="schema" @submit="submit">
             <UFormGroup label="Phone Number" required name="phoneNumber" class="w-full">
               <UInput v-model="state.phoneNumber" v-maska:unmaskedPhone.unmasked="'##-###-#####'" />
             </UFormGroup>
@@ -220,6 +188,7 @@ function handleSlotClick() {
           </UForm>
         </div>
       </div>
+
     </div>
   </UModal>
 </template>
