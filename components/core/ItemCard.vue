@@ -77,10 +77,10 @@ function isInCart(itemName) {
             <CoreCounter v-model="count[key]" />
             <div class="flex gap-1 items-center">
               <div class="text-primary font-semibold text-3xl">
-                <span class="text-sm">{{ cartStore.getCurrency }}</span>{{ Number(item.db_price).toFixed(3) }}
+                <span class="text-sm">{{ cartStore.getCurrency }}</span>{{ Number(item.db_price).toFixed(2) }}
               </div>
               <div class="line-through text-[#adadad] font-medium text-sm">
-                <span class="text-xs">{{ cartStore.getCurrency }} </span>{{ Number(item.price).toFixed(3) }}
+                <span class="text-xs">{{ cartStore.getCurrency }} </span>{{ Number(item.price).toFixed(2) }}
               </div>
             </div>
           </div>

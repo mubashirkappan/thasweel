@@ -99,10 +99,10 @@ function generateMessage(data) {
   data.items.forEach((item, index) => {
     message += `${index + 1}. *${item.name}*\n`
     message += `   - Qty: ${item.quantity}\n`
-    message += `   - Price: ${cartStore.getCurrency}${Number(item.totalPrice).toFixed(3)}\n\n`
+    message += `   - Price: ${cartStore.getCurrency}${Number(item.totalPrice).toFixed(2)}\n\n`
   })
   
-  message += `*Total Price: ${cartStore.getCurrency}${Number(data.total_price).toFixed(3)}*\n\n`
+  message += `*Total Price: ${cartStore.getCurrency}${Number(data.total_price).toFixed(2)}*\n\n`
   message += 'Please confirm the order. Thank you!'
   return message
 }
@@ -157,8 +157,8 @@ function handleSlotClick() {
       
       <!-- Responsive Calculations Box (Switches positions elegantly on mobile) -->
       <div class="text-xs md:text-sm text-gray-500 font-mono text-left sm:text-right whitespace-nowrap">
-        {{ item.quantity }} x {{ Number(item.pricePerItem).toFixed(3) }} = 
-        <span class="font-semibold text-gray-900">{{ Number(item.totalPrice).toFixed(3) }}</span>
+        {{ item.quantity }} x {{ Number(item.pricePerItem).toFixed(2) }} = 
+        <span class="font-semibold text-gray-900">{{ Number(item.totalPrice).toFixed(2) }}</span>
       </div>
     </div>
   </div> 
@@ -169,7 +169,7 @@ function handleSlotClick() {
   <div class="flex justify-between w-full pt-1 text-sm md:text-base">
     <span class="font-semibold text-gray-900">Total</span>
     <div class="font-bold text-gray-900 font-mono">
-      {{ cartStore.getCurrency }} {{ Number(cartStore.totalAmount).toFixed(3) }}
+      {{ cartStore.getCurrency }} {{ Number(cartStore.totalAmount).toFixed(2) }}
     </div>
   </div>
 </div>
