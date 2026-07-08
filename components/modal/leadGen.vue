@@ -1,6 +1,7 @@
 <script setup>
 import { z } from 'zod'
 import { useCartStore } from '/composables/cartData'
+import { watchEffect } from 'vue'
 
 const props = defineProps({
   custom: {
@@ -14,7 +15,11 @@ const props = defineProps({
     type: Object,
   },
 })
-
+watchEffect(() => {
+  if (props.shopDetails?.id) {
+    cartStore.initShopCart(props.shopDetails.id)
+  }
+})
 const unmaskedPhone = ref('')
 const leadGen = ref(false)
 const cartStore = useCartStore()
