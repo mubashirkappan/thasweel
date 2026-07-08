@@ -141,29 +141,38 @@ function handleSlotClick() {
       
       <div class="grid md:grid-cols-2 gap-3 md:gap-10">
         <!-- Items Column -->
-        <div class="border border-red-500 rounded-xl p-4 md:my-3">
-          <div class="text-lg md:text-xl font-semibold">
-            Items List
-          </div>
-          
-          <div class="flex flex-col max-h-[200px] md:max-h-[calc(100%-50px)] md:h-full overflow-scroll w-full py-3">
-            <div v-for="item in cartStore.itemsWithPrices" :key="item.name" class="flex justify-between w-full">
-              <span>{{ item.name }}</span>
-              <div>
-                {{ item.quantity }} x {{ Number(item.pricePerItem).toFixed(3) }} = {{ Number(item.totalPrice).toFixed(3) }}
-              </div>
-            </div>
-          </div> 
-          
-          <UDivider size="lg" type="dotted" />
-          
-          <div class="flex justify-between w-full pt-2">
-            <span class="font-semibold">Total</span>
-            <div class="font-bold">
-              {{ cartStore.getCurrency }} {{ Number(cartStore.totalAmount).toFixed(3) }}
-            </div>
-          </div>
-        </div>
+ <!-- Items Column -->
+<div class="border border-red-500 rounded-xl p-4 md:my-3">
+  <div class="text-lg md:text-xl font-semibold mb-2">
+    Items List
+  </div>
+  
+  <!-- Scrollable Items Container Wrapper -->
+  <div class="flex flex-col max-h-[250px] md:max-h-[calc(100%-50px)] md:h-full overflow-y-auto w-full py-1 divide-y divide-gray-100">
+    <div v-for="item in cartStore.itemsWithPrices" :key="item.name" class="flex flex-col sm:flex-row sm:justify-between sm:items-center py-2 gap-1">
+      <!-- Item Name Box -->
+      <span class="font-medium text-gray-800 text-sm md:text-base break-words max-w-full sm:max-w-[60%]">
+        {{ item.name }}
+      </span>
+      
+      <!-- Responsive Calculations Box (Switches positions elegantly on mobile) -->
+      <div class="text-xs md:text-sm text-gray-500 font-mono text-left sm:text-right whitespace-nowrap">
+        {{ item.quantity }} x {{ Number(item.pricePerItem).toFixed(3) }} = 
+        <span class="font-semibold text-gray-900">{{ Number(item.totalPrice).toFixed(3) }}</span>
+      </div>
+    </div>
+  </div> 
+  
+  <UDivider size="lg" type="dotted" class="my-3" />
+  
+  <!-- Grand Total Block -->
+  <div class="flex justify-between w-full pt-1 text-sm md:text-base">
+    <span class="font-semibold text-gray-900">Total</span>
+    <div class="font-bold text-gray-900 font-mono">
+      {{ cartStore.getCurrency }} {{ Number(cartStore.totalAmount).toFixed(3) }}
+    </div>
+  </div>
+</div>
         
         <!-- Form Column -->
         <div class="border border-red-500 rounded-xl p-4 md:my-3 flex flex-col items-center justify-center">
