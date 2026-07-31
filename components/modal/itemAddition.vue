@@ -22,8 +22,8 @@ const state = reactive({
 })
 const schema = z.object({
   name: z.string().min(2, 'Must be at least 2 characters'),
-  price: z.number(),
-  dibi_price: z.number(),
+  price: z.coerce.number().positive("Price must be a positive number"),
+  dibi_price: z.coerce.number().positive("Price must be a positive number"),
   image: z.any(),
   count: z.number(),
   active: z.boolean(),
@@ -108,10 +108,10 @@ async function submit() {
           <UInput v-model="state.name" />
         </UFormGroup>
         <UFormGroup label="Price" required name="price">
-          <UInput v-model="state.price" type="number" />
+          <UInput v-model="state.price" type="number" step="0.001" />
         </UFormGroup>
         <UFormGroup label="Discounted Price" description="Actual Price" required name="dibi_price">
-          <UInput v-model="state.dibi_price" type="number" />
+          <UInput v-model="state.dibi_price" type="number" step="0.001" />
         </UFormGroup>
         <UFormGroup label="Count" required name="count">
           <UInput v-model="state.count" type="number" />

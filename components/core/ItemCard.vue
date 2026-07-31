@@ -3,8 +3,7 @@ import { useCartStore } from '/composables/cartData'
 
 const props = defineProps({
   data: Object,
-  shopId: Number,
-
+  shopId: [Number, String],
 })
 
 const cartStore = useCartStore()
@@ -18,6 +17,7 @@ onMounted(() => {
     return acc
   }, {})
 })
+
 function submit(itemName, quantity, price) {
   loading.value = true
   if (quantity < 1) {
@@ -35,12 +35,18 @@ function submit(itemName, quantity, price) {
       return
     }
   }
-  cartStore.addItem(itemName, quantity, price)
+
+  // FIXED: Passed props.shopId to ensure the store isolates items by shop context
+  cartStore.addItem(itemName, quantity, price, props.shopId)
+  
   if (existingItem)
     toast.add({ timeout: 1500, title: 'Items count Updated', color: 'green', icon: 'i-heroicons-check-badge' })
-  toast.add({ timeout: 1500, title: 'Items added to cart', color: 'green', icon: 'i-heroicons-check-badge' })
+  else
+    toast.add({ timeout: 1500, title: 'Items added to cart', color: 'green', icon: 'i-heroicons-check-badge' })
+  
   loading.value = false
 }
+
 function removeItem(itemName) {
   cartStore.removeItem(itemName)
   toast.add({ timeout: 1500, title: 'Item removed from cart', color: 'green', icon: 'i-heroicons-check-badge' })
@@ -52,7 +58,6 @@ function isInCart(itemName) {
 </script>
 
 <template>
-  <!-- {{ itemNames }} -->
   <template v-for="(item, key) in data" :key="item.id">
     <div v-if="item.active" class="flex flex-col p-5 border border-gray-200 rounded-xl max-w-[400px] w-full mx-auto">
       <div class="max-h-[150px] h-full overflow-hidden">
@@ -72,10 +77,10 @@ function isInCart(itemName) {
             <CoreCounter v-model="count[key]" />
             <div class="flex gap-1 items-center">
               <div class="text-primary font-semibold text-3xl">
-                <span class="text-sm">{{ cartStore.getCurrency }}</span>{{ item.db_price }}
+                <span class="text-sm">{{ cartStore.getCurrency }}</span>{{ Number(item.db_price).toFixed(2) }}
               </div>
               <div class="line-through text-[#adadad] font-medium text-sm">
-                <span class="text-xs">{{ cartStore.getCurrency }} </span>{{ item.price }}
+                <span class="text-xs">{{ cartStore.getCurrency }} </span>{{ Number(item.price).toFixed(2) }}
               </div>
             </div>
           </div>
