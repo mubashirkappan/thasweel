@@ -46,7 +46,7 @@ const config = useRuntimeConfig()
 
 function submit() {
   loading.value = true
-  const whatsappWindow = window.open('', '_blank');
+
   const body = {
     phonenumber: unmaskedPhone.value,
     name: state.name,
@@ -54,7 +54,7 @@ function submit() {
     delivery_time: state.deliveryDate || 'Not specified',
     items: cartStore.itemsWithPrices,
     total_price: cartStore.totalAmount,
-    shop_id: props.shopDetails.id,
+    shop_id: props.shopDetails?.id,
   }
 
   $fetch(`${config.public.apiBaseUrl}/order`, {
@@ -62,24 +62,27 @@ function submit() {
     body,
   })
     .then((response) => {
-      toast.add({ title: response.message, icon: 'i-heroicons-check-badge', color: 'green' })
+      toast.add({ title: response.message || 'Order placed successfully', icon: 'i-heroicons-check-badge', color: 'green' })
       const message = generateMessage(body)
       cartStore.$reset()
       leadGen.value = false
     
-      const cleanCC = String(props.shopDetails.country_code).replace(/\D/g, '')
-      const cleanPhone = String(props.shopDetails.phone).replace(/\D/g, '')
+      const cleanCC = String(props.shopDetails?.country_code || '').replace(/\D/g, '')
+      const cleanPhone = String(props.shopDetails?.phone || '').replace(/\D/g, '')
 
-      setTimeout(() => {
-        const whatsappLink = `https://wa.me/${cleanCC}${cleanPhone}?text=${encodeURIComponent(message)}`
-        window.open(whatsappLink, '_blank')
-        loading.value = false
-      }, 1000)
+      const whatsappLink = `https://wa.me/${cleanCC}${cleanPhone}?text=${encodeURIComponent(message)}`
+      
+      // Directly redirect current page/tab. This avoids iPhone popup blocks and blank page traps.
+      window.location.href = whatsappLink
     })
     .catch((error) => {
       console.error('Failed to submit order:', error)
       const errorMessage = error?.data?.message || 'An unknown error occurred'
       toast.add({ title: errorMessage, color: 'red', icon: 'i-heroicons-x-circle' })
+
+      // Close modal and redirect to home on critical failures to prevent blank or broken views
+      leadGen.value = false
+      navigateTo('/')
     })
     .finally(() => {
       loading.value = false
@@ -141,38 +144,37 @@ function handleSlotClick() {
       
       <div class="grid md:grid-cols-2 gap-3 md:gap-10">
         <!-- Items Column -->
- <!-- Items Column -->
-<div class="border border-red-500 rounded-xl p-4 md:my-3">
-  <div class="text-lg md:text-xl font-semibold mb-2">
-    Items List
-  </div>
-  
-  <!-- Scrollable Items Container Wrapper -->
-  <div class="flex flex-col max-h-[250px] md:max-h-[calc(100%-50px)] md:h-full overflow-y-auto w-full py-1 divide-y divide-gray-100">
-    <div v-for="item in cartStore.itemsWithPrices" :key="item.name" class="flex flex-col sm:flex-row sm:justify-between sm:items-center py-2 gap-1">
-      <!-- Item Name Box -->
-      <span class="font-medium text-gray-800 text-sm md:text-base break-words max-w-full sm:max-w-[60%]">
-        {{ item.name }}
-      </span>
-      
-      <!-- Responsive Calculations Box (Switches positions elegantly on mobile) -->
-      <div class="text-xs md:text-sm text-gray-500 font-mono text-left sm:text-right whitespace-nowrap">
-        {{ item.quantity }} x {{ Number(item.pricePerItem).toFixed(2) }} = 
-        <span class="font-semibold text-gray-900">{{ Number(item.totalPrice).toFixed(2) }}</span>
-      </div>
-    </div>
-  </div> 
-  
-  <UDivider size="lg" type="dotted" class="my-3" />
-  
-  <!-- Grand Total Block -->
-  <div class="flex justify-between w-full pt-1 text-sm md:text-base">
-    <span class="font-semibold text-gray-900">Total</span>
-    <div class="font-bold text-gray-900 font-mono">
-      {{ cartStore.getCurrency }} {{ Number(cartStore.totalAmount).toFixed(2) }}
-    </div>
-  </div>
-</div>
+        <div class="border border-red-500 rounded-xl p-4 md:my-3">
+          <div class="text-lg md:text-xl font-semibold mb-2">
+            Items List
+          </div>
+          
+          <!-- Scrollable Items Container Wrapper -->
+          <div class="flex flex-col max-h-[250px] md:max-h-[calc(100%-50px)] md:h-full overflow-y-auto w-full py-1 divide-y divide-gray-100">
+            <div v-for="item in cartStore.itemsWithPrices" :key="item.name" class="flex flex-col sm:flex-row sm:justify-between sm:items-center py-2 gap-1">
+              <!-- Item Name Box -->
+              <span class="font-medium text-gray-800 text-sm md:text-base break-words max-w-full sm:max-w-[60%]">
+                {{ item.name }}
+              </span>
+              
+              <!-- Responsive Calculations Box -->
+              <div class="text-xs md:text-sm text-gray-500 font-mono text-left sm:text-right whitespace-nowrap">
+                {{ item.quantity }} x {{ Number(item.pricePerItem).toFixed(2) }} = 
+                <span class="font-semibold text-gray-900">{{ Number(item.totalPrice).toFixed(2) }}</span>
+              </div>
+            </div>
+          </div> 
+          
+          <UDivider size="lg" type="dotted" class="my-3" />
+          
+          <!-- Grand Total Block -->
+          <div class="flex justify-between w-full pt-1 text-sm md:text-base">
+            <span class="font-semibold text-gray-900">Total</span>
+            <div class="font-bold text-gray-900 font-mono">
+              {{ cartStore.getCurrency }} {{ Number(cartStore.totalAmount).toFixed(2) }}
+            </div>
+          </div>
+        </div>
         
         <!-- Form Column -->
         <div class="border border-red-500 rounded-xl p-4 md:my-3 flex flex-col items-center justify-center">
