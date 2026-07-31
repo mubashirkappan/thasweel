@@ -38,7 +38,7 @@ const toast = useToast()
 const config = useRuntimeConfig()
 function submit() {
   loading.value = true
-
+  const whatsappWindow = window.open('', '_blank');
   const body = {
     phonenumber: unmaskedPhone.value,
     name: state.name,
@@ -49,35 +49,36 @@ function submit() {
     shop_id: props.shopDetails.id,
   }
 
-  $fetch(`${config.public.apiBaseUrl}/order`, {
-    method: 'POST',
-    body,
-  })
-    .then((response) => {
-      toast.add({ title: response.message, icon: 'i-heroicons-check-badge', color: 'green' })
-      const message = generateMessage(body)
-      cartStore.$reset()
-    
-      const cleanCC = String(props.shopDetails.country_code).replace(/\D/g, '')
-      const cleanPhone = String(props.shopDetails.phone).replace(/\D/g, '')
+$fetch(`${config.public.apiBaseUrl}/order`, {
+  method: 'POST',
+  body,
+})
+  .then((response) => {
+    toast.add({ title: response.message, icon: 'i-heroicons-check-badge', color: 'green' })
+    const message = generateMessage(body)
+    cartStore.$reset()
+  
+    const cleanCC = String(props.shopDetails.country_code).replace(/\D/g, '')
+    const cleanPhone = String(props.shopDetails.phone).replace(/\D/g, '')
 
-      setTimeout(() => {
-        const whatsappLink = `https://wa.me/${cleanCC}${cleanPhone}?text=${encodeURIComponent(message)}`
-        
-        // Attempt to open the link
-        window.open(whatsappLink, '_blank')
-        
-        loading.value = false
-      }, 1000)
-    })
-    .catch((error) => {
-      console.error('Failed to submit order:', error) // Log the entire error object
-      const errorMessage = error?.data?.message || 'An unknown error occurred'
-      toast.add({ title: errorMessage, color: 'red', icon: 'i-heroicons-x-circle' })
-    })
-    .finally(() => {
-      loading.value = false
-    })
+    const whatsappLink = `https://wa.me/${cleanCC}${cleanPhone}?text=${encodeURIComponent(message)}`
+    
+    // 2. Update the pre-opened window's location instead of calling window.open again inside setTimeout
+    whatsappWindow.location.href = whatsappLink;
+    
+    loading.value = false
+  })
+  .catch((error) => {
+    // 3. If it fails, close the blank window we opened earlier
+    whatsappWindow.close();
+    
+    console.error('Failed to submit order:', error)
+    const errorMessage = error?.data?.message || 'An unknown error occurred'
+    toast.add({ title: errorMessage, color: 'red', icon: 'i-heroicons-x-circle' })
+  })
+  .finally(() => {
+    loading.value = false
+  })
 }
 
 function generateMessage(data) {

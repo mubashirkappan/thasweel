@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useCartStore } from '/composables/cartData'
-
+import { navigateTo } from '#app'
 definePageMeta({
   layout: 'inner',
 })
@@ -78,29 +78,43 @@ async function fetchItems() {
 }
 
 async function fetchImagesList() {
+  const shopId = shopDetail.value?.id
+
+  if (!shopId) {
+    navigateTo('/')
+    return
+  }
+
   loading.value = true
-  $fetch(`${config.public.apiBaseUrl}/offer/inside-shop-list`, {
-    headers: {
-      accept: 'application/json',
-    },
-    body: {
-      shop_id: shopDetail.value?.id,
-    },
-    method: 'POST',
-  })
-    .then((response) => {
-      fetchedImages.value = response.data
+  try {
+    const response = await $fetch(`${config.public.apiBaseUrl}/offer/inside-shop-list`, {
+      headers: {
+        accept: 'application/json',
+      },
+      body: {
+        shop_id: shopId,
+      },
+      method: 'POST',
     })
-    .catch(({ data }) => {
+
+    if (!response || !response.data) {
+      throw new Error('Invalid response data')
+    }
+
+    fetchedImages.value = response.data
+  } catch (error) {
+    const data = error?.data
+    if (data?.message) {
       toast.add({
-        title: data?.message,
+        title: data.message,
         color: 'red',
         icon: 'i-heroicons-x-circle',
       })
-    })
-    .finally(() => {
-      loading.value = false
-    })
+    }
+    navigateTo('/')
+  } finally {
+    loading.value = false
+  }
 }
 
 function reloadItems() {

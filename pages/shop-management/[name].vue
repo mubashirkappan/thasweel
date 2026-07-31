@@ -2,7 +2,7 @@
 import { storeToRefs } from 'pinia'
 import { data } from '~/data/shops'
 import { useCartStore } from '/composables/cartData'
-
+import { navigateTo } from '#app'
 definePageMeta({
   middleware: ['shop-owner-add'],
 })
@@ -190,6 +190,15 @@ function deleteCategory(value) {
 }
 
 function fetchImagesList() {
+  // Check if the shop object and its ID exist before doing anything
+  const shopId = fetchedShopData.value?.id
+
+  if (!shopId) {
+    // Redirect to home if shop id is missing
+    navigateTo('/')
+    return
+  }
+
   loading.value = true
   $fetch(`${config.public.apiBaseUrl}/offer/inside-shop-list`, {
     headers: {
@@ -197,25 +206,36 @@ function fetchImagesList() {
       accept: 'application/json',
     },
     body: {
-      shop_id: fetchedShopData.value.id,
+      shop_id: shopId,
     },
     method: 'POST',
   })
     .then((response) => {
+      // Validate that response and data exist to prevent blank screens
+      if (!response || !response.data) {
+        throw new Error('Invalid response structure')
+      }
       fetchedImages.value = response.data
     })
-    .catch(({ data }) => {
-      toast.add({
-        title: data.message,
-        color: 'red',
-        icon: 'i-heroicons-x-circle',
-      })
+    .catch((error) => {
+      const data = error?.data
+      
+      // Show toast if message exists
+      if (data?.message) {
+        toast.add({
+          title: data.message,
+          color: 'red',
+          icon: 'i-heroicons-x-circle',
+        })
+      }
+
+      // If backend throws an error (e.g., shop not found), redirect to home
+      navigateTo('/')
     })
     .finally(() => {
       loading.value = false
     })
 }
-
 function deleteBanner(value) {
   loading.value = true
   $fetch(`${config.public.apiBaseUrl}/offer/delete/${value}`, {
