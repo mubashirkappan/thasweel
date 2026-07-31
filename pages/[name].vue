@@ -28,64 +28,70 @@ async function fetchShops(query) {
 
     if (!response.ok)
       throw new Error('Failed to list Shops')
+    
     data = await response.json()
+
+    // Check if shop exists in response data
+    if (!data?.data || data.data.length === 0 || !data.data[0]) {
+      throw new Error('Shop not found')
+    }
+
     shopDetail.value = data.data[0]
     cartStore.setCurrency(shopDetail.value?.currency)
-    itemList.value = data.data[0].items
-    categoryList.value = data.data[0].categorys
+    itemList.value = data.data[0]?.items
+    categoryList.value = data.data[0]?.categorys
+
+    // Only fetch items and images if shop details are fully loaded
+    await fetchItems()
+    await fetchImagesList()
   }
   catch (error) {
     toast.add({
-      title: error.message,
+      title: error.message || 'Error loading shop',
       color: 'red',
       icon: 'i-heroicons-x-circle',
     })
+    navigateTo('/')
   }
   finally {
     loading.value = false
-    fetchItems()
-    fetchImagesList()
   }
 }
+
 const listing = ref(null)
 
 async function fetchItems() {
-  loading.value = true
+  const shopId = shopDetail.value?.id
+  if (!shopId) return
+
   try {
     const response = await $fetch(`${config.public.apiBaseUrl}/items`, {
       headers: {
         accept: 'application/json',
       },
       body: {
-        shop_id: shopDetail.value.id,
+        shop_id: shopId,
         keyword: selectedKeyword.value,
         category_id: selectedCategory.value,
       },
       method: 'POST',
     })
-    listing.value = response.data
+    listing.value = response?.data
   }
   catch (error) {
+    const errorMsg = error?.data?.message || error.message
     toast.add({
-      title: error.message,
+      title: errorMsg,
       color: 'red',
       icon: 'i-heroicons-x-circle',
     })
-  }
-  finally {
-    loading.value = false
   }
 }
 
 async function fetchImagesList() {
   const shopId = shopDetail.value?.id
+  if (!shopId) return
 
-  if (!shopId) {
-    navigateTo('/')
-    return
-  }
-
-  loading.value = true
   try {
     const response = await $fetch(`${config.public.apiBaseUrl}/offer/inside-shop-list`, {
       headers: {
@@ -97,11 +103,9 @@ async function fetchImagesList() {
       method: 'POST',
     })
 
-    if (!response || !response.data) {
-      throw new Error('Invalid response data')
+    if (response?.data) {
+      fetchedImages.value = response.data
     }
-
-    fetchedImages.value = response.data
   } catch (error) {
     const data = error?.data
     if (data?.message) {
@@ -111,9 +115,6 @@ async function fetchImagesList() {
         icon: 'i-heroicons-x-circle',
       })
     }
-    navigateTo('/')
-  } finally {
-    loading.value = false
   }
 }
 
@@ -122,6 +123,7 @@ function reloadItems() {
   selectedKeyword.value = null
   fetchItems()
 }
+
 function getData() {
   if (!shop.value) {
     navigateTo('/shopList')
@@ -131,9 +133,11 @@ function getData() {
     fetchShops(shop.value)
   }
 }
+
 watch([selectedCategory, selectedKeyword], () => {
   fetchItems()
 })
+
 onMounted(
   getData,
 )
