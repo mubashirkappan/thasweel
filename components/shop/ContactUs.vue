@@ -66,7 +66,7 @@ defineExpose({ unmaskedPhone })
     <div class="border rounded-md border-red-500 w-full max-w-[600px] px-4 py-6 md:p-10 bg-white transition-all duration-300">
       
       <div v-if="!success" class="pb-4 text-lg md:text-3xl text-center font-bold text-gray-800">
-        Restaurant, cafe, food brand owners contact us
+          Bakers, Home Cooks & Food Brand Owners — Contact Us
       </div>
 
       <div v-if="success" class="flex flex-col items-center justify-center py-10 space-y-4 animate-fade-in">
