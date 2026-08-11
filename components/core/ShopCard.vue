@@ -3,7 +3,6 @@ defineProps({
   data: Object,
 })
 function submitAction(name) {
-  // console.log('hii')
   window.location.href = `/${name}`
 }
 </script>

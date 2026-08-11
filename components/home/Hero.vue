@@ -2,7 +2,6 @@
 // const config = useRuntimeConfig()
 // try {
 //   const response = await $fetch(`${config.public.apiBaseUrl}/shop/list`)
-//   console.log(response)
 // }
 // catch (error) {
 //   console.error('Failed to fetch data:', error)
