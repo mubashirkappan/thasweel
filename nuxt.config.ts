@@ -12,14 +12,14 @@ export default defineNuxtConfig({
   ],
   googleFonts: {
     families: {
-      Quicksand: [300, 400,500,600,700],
-      Poppins: [300, 400,500,600,700],
+      Quicksand: [300, 400, 500, 600, 700],
+      Poppins: [300, 400, 500, 600, 700],
     }
   },
   runtimeConfig: {
     public: {
-      apiBaseUrl: process.env.BASE_URL,
-      frontendUrl : process.env.FRONTEND_URL || 'https://www.thasweel.com' // Add this
+      apiBaseUrl: process.env.BASE_URL || process.env.NUXT_PUBLIC_BASE_URL || '',
+      frontendUrl: process.env.FRONTEND_URL || process.env.NUXT_PUBLIC_FRONTEND_URL || ''
     }
   },
   colorMode: {
@@ -38,4 +38,9 @@ export default defineNuxtConfig({
     },
     defaultPreset: 'default',
   },
+  // watchers: {
+  //   webpack: {
+  //     poll: true
+  //   }
+  // }
 })

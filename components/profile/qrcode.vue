@@ -9,16 +9,21 @@ const config = useRuntimeConfig()
 
 const qrCode = ref('')
 const toast = useToast()
-const isLoading = ref(true) // Add a loading state
+const isLoading = ref(true)
 
 async function generateQRCode(data) {
   try {
-    if (data)
+    if (!data) return
 
-    console.log(config.public.apiBaseUrl);
-    console.log(config.public.frontendUrl);
-    console.log(4);
-      qrCode.value = await QRCode.toDataURL(`${config.public.frontendUrl}/${data}`)
+    const baseUrl = config.public.frontendUrl
+      .trim()
+      .replace(/\/+$/, '')
+
+    const targetUrl = `${baseUrl}/${data}`
+
+    console.log('Generating QR:', targetUrl)
+
+    qrCode.value = await QRCode.toDataURL(targetUrl)
   }
   catch (error) {
     toast.add({
@@ -28,7 +33,7 @@ async function generateQRCode(data) {
     })
   }
   finally {
-    isLoading.value = false // Set loading to false after the QR code is generated
+    isLoading.value = false
   }
 }
 
@@ -44,7 +49,7 @@ function downloadQRCode() {
 
   const link = document.createElement('a')
   link.href = qrCode.value
-  link.download = 'qrcode.png'
+  link.download = `${props.slug || 'shop'}-qrcode.png`
   link.click()
 }
 
