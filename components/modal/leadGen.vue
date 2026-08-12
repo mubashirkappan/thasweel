@@ -96,12 +96,27 @@ function generateMessage(data) {
   let message = `Hi, I would like to place the following order:\n\n`
   message += `*Name:* ${state.name}\n`
   message += `*Phone:* ${phone}\n`
-  message += `*Address:* ${state.address}\n`
+  message += `*Address:* ${state.address || 'N/A'}\n`
   message += `*Delivery Time:* ${deliveryTime}\n\n`
   
   data.items.forEach((item, index) => {
-    message += `${index + 1}. *${item.name}*\n`
+    message += `${index + 1}. *${item.name}*`
+    if (item.unit) message += ` (${item.unit})`
+    message += `\n`
     message += `   - Qty: ${item.quantity}\n`
+    
+    if (item.preparation_preference) {
+      if (item.preparation_preference === 'single_combined') {
+        message += `   - Fulfillment: 1 Single Combined Piece (Total weight)\n`
+      } else if (item.quantity > 1) {
+        message += `   - Fulfillment: ${item.quantity} Separate Items\n`
+      }
+    }
+
+    if (item.item_note && String(item.item_note).trim()) {
+      message += `   - Note: ${String(item.item_note).trim()}\n`
+    }
+
     message += `   - Price: ${cartStore.getCurrency}${Number(item.totalPrice).toFixed(2)}\n\n`
   })
   
@@ -151,16 +166,32 @@ function handleSlotClick() {
           
           <!-- Scrollable Items Container Wrapper -->
           <div class="flex flex-col max-h-[250px] md:max-h-[calc(100%-50px)] md:h-full overflow-y-auto w-full py-1 divide-y divide-gray-100">
-            <div v-for="item in cartStore.itemsWithPrices" :key="item.name" class="flex flex-col sm:flex-row sm:justify-between sm:items-center py-2 gap-1">
-              <!-- Item Name Box -->
-              <span class="font-medium text-gray-800 text-sm md:text-base break-words max-w-full sm:max-w-[60%]">
-                {{ item.name }}
-              </span>
-              
-              <!-- Responsive Calculations Box -->
-              <div class="text-xs md:text-sm text-gray-500 font-mono text-left sm:text-right whitespace-nowrap">
-                {{ item.quantity }} x {{ Number(item.pricePerItem).toFixed(2) }} = 
-                <span class="font-semibold text-gray-900">{{ Number(item.totalPrice).toFixed(2) }}</span>
+            <div v-for="item in cartStore.itemsWithPrices" :key="item.name" class="flex flex-col py-2 gap-1">
+              <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                <!-- Item Name Box -->
+                <span class="font-medium text-gray-800 text-sm md:text-base break-words max-w-full sm:max-w-[60%]">
+                  {{ item.name }}
+                  <span v-if="item.unit" class="text-xs text-gray-500 font-normal">({{ item.unit }})</span>
+                </span>
+                
+                <!-- Responsive Calculations Box -->
+                <div class="text-xs md:text-sm text-gray-500 font-mono text-left sm:text-right whitespace-nowrap">
+                  {{ item.quantity }} x {{ Number(item.pricePerItem).toFixed(2) }} = 
+                  <span class="font-semibold text-gray-900">{{ Number(item.totalPrice).toFixed(2) }}</span>
+                </div>
+              </div>
+
+              <!-- Preferences & Notes Preview -->
+              <div v-if="item.preparation_preference || item.item_note" class="text-xs text-gray-600 flex flex-col gap-0.5 pl-2 border-l-2 border-primary/40 mt-1">
+                <span v-if="item.preparation_preference === 'single_combined'" class="text-purple-700 font-medium">
+                  Pref: 1 Single Combined Piece
+                </span>
+                <span v-else-if="item.quantity > 1 && item.preparation_preference === 'separate'" class="text-amber-700 font-medium">
+                  Pref: {{ item.quantity }} Separate Items
+                </span>
+                <span v-if="item.item_note" class="italic text-gray-500">
+                  Note: {{ item.item_note }}
+                </span>
               </div>
             </div>
           </div> 

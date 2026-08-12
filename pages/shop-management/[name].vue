@@ -406,14 +406,12 @@ onMounted(() => {
           Categories
         </div>
         <div v-if="fetchedCategories.length !== 0" class="flex flex-col gap-3 py-2">
-          <div class=" items-center justify-center flex-col w-full gap-5 grid grid-cols-2 md:grid-cols-6 ">
-            <div v-for="item in fetchedCategories" :key="item?.name" class="w-full border p-2 gap-2 items-center border-black/50 rounded-md flex justify-between  ">
-              <div class=" flex justify-between max-md:flex-col max-md:items-center">
-                <div v-if="item.name" class=" text-xl truncate max-w-[120px]">
-                  {{ item.name }}
-                </div>
+          <div class="w-full gap-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+            <div v-for="item in fetchedCategories" :key="item?.name" class="w-full border border-gray-300 p-2.5 gap-2 items-center rounded-lg flex justify-between bg-white shadow-sm hover:shadow transition-shadow">
+              <div v-if="item.name" class="text-sm font-semibold text-gray-800 truncate min-w-0 flex-1">
+                {{ item.name }}
               </div>
-              <UButton size="xl" variant="solid" class="bg-red-600 hover:bg-red-500" @click="deleteCategory(item.encrypted_id)">
+              <UButton size="sm" variant="solid" class="bg-red-600 hover:bg-red-500 shrink-0" @click="deleteCategory(item.encrypted_id)">
                 <Icon name="i-heroicons-trash" />
               </UButton>
             </div>
@@ -441,13 +439,13 @@ onMounted(() => {
           Items
         </div>
         <div v-if="fetchedItems.length !== 0" class="flex flex-col gap-3">
-          <div class="  w-full gap-5 grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 justify-center ">
-            <div v-for="item in fetchedItems " :key="item?.name" class="w-full border p-2 gap-2 items-center border-black/50 rounded-md flex flex-col max-w-[300px] relative" :class="{ 'after:bg-white after:absolute after:h-full after:w-full after:top-0 after:right-0 after:rounded-md after:opacity-80': !item.active }">
-              <div class="h-[calc(100%-80px)] flex-shrink-0 ">
-                <img :src="item.image_name" class="object-cover rounded-md w-full h-full max-h-[200px] object-center" alt="">
+          <div class="w-full gap-5 grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 justify-center">
+            <div v-for="item in fetchedItems" :key="item?.name" class="w-full border p-3 border-gray-300 rounded-xl flex flex-col justify-between max-w-[300px] mx-auto bg-white shadow-sm relative overflow-hidden" :class="{ 'after:bg-white after:absolute after:h-full after:w-full after:top-0 after:right-0 after:rounded-md after:opacity-80': !item.active }">
+              <div class="w-full h-[180px] overflow-hidden rounded-md bg-gray-50 flex items-center justify-center shrink-0">
+                <img :src="item.image_name" class="object-cover rounded-md w-full h-full max-h-[180px] object-center" alt="">
               </div>
 
-              <div class="flex flex-col gap-1.5 justify-start w-full">
+              <div class="flex flex-col gap-1.5 justify-between w-full mt-2 flex-grow">
                 <div v-if="item.name" class="text-base font-bold truncate max-w-[200px] text-gray-900">
                   {{ item.name }}
                 </div>
@@ -470,19 +468,19 @@ onMounted(() => {
                   </span>
                 </div>
 
-                <div class="flex gap-2 mt-1">
-                  <UButton size="xl" variant="solid" class="bg-primary hover:bg-primary/80" @click="toggleVisibilityItem(item.encrypted_id)">
+                <div class="flex gap-1.5 mt-2 w-full justify-between pt-2 border-t border-gray-100">
+                  <UButton size="md" variant="solid" class="bg-primary hover:bg-primary/80 flex-1 justify-center" @click="toggleVisibilityItem(item.encrypted_id)">
                     <Icon name="i-mdi-eye-off-outline" />
                   </UButton>
-                  <UButton size="xl" variant="solid" class="bg-red-600 hover:bg-red-500" @click="deleteItem(item.encrypted_id)">
+                  <UButton size="md" variant="solid" class="bg-red-600 hover:bg-red-500 flex-1 justify-center" @click="deleteItem(item.encrypted_id)">
                     <Icon name="i-heroicons-trash" />
                   </UButton>
-                  <UButton size="xl" variant="solid" class="bg-primary hover:bg-primary/80" @click="editItem(item)">
+                  <UButton size="md" variant="solid" class="bg-primary hover:bg-primary/80 flex-1 justify-center" @click="editItem(item)">
                     <Icon name="i-heroicons-pencil-square" />
                   </UButton>
                 </div>
               </div>
-              <UButton v-if="!item.active" size="xl" variant="solid" class="bg-primary hover:bg-primary/80 absolute z-10 left-1/2 top-1/2 -translate-x-[50%]  -translate-y-[50%]" @click="toggleVisibilityItem(item.encrypted_id)">
+              <UButton v-if="!item.active" size="xl" variant="solid" class="bg-primary hover:bg-primary/80 absolute z-10 left-1/2 top-1/2 -translate-x-[50%] -translate-y-[50%]" @click="toggleVisibilityItem(item.encrypted_id)">
                 <Icon name="i-mdi-eye-outline" />
               </UButton>
             </div>
@@ -514,18 +512,16 @@ onMounted(() => {
           </span>
         </div>
         <div v-if="fetchedImages.length !== 0" class="flex flex-col gap-3">
-          <div class="  w-full gap-5 grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 justify-center ">
-            <div v-for="item in fetchedImages " :key="item?.name" class="w-full border p-2 gap-2 items-center border-black/50 rounded-md flex flex-col max-w-[300px]">
-              <div class="h-[calc(100%-40px)] flex-shrink-0 ">
-                <img :src="item.image_url" class="object-cover rounded-md w-full h-full max-h-[200px] object-center" alt="">
+          <div class="w-full gap-5 grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 justify-center">
+            <div v-for="item in fetchedImages" :key="item?.name" class="w-full border p-3 border-gray-300 rounded-xl flex flex-col justify-between max-w-[300px] mx-auto bg-white shadow-sm overflow-hidden">
+              <div class="w-full h-[150px] overflow-hidden rounded-md bg-gray-50 flex items-center justify-center shrink-0">
+                <img :src="item.image_url" class="object-cover rounded-md w-full h-full max-h-[150px] object-center" alt="">
               </div>
 
-              <div class="flex flex-col gap-2 justify-start">
-                <div class="flex gap-2 ">
-                  <UButton size="xl" variant="solid" class="bg-red-600 hover:bg-red-500" @click="deleteBanner(item.id)">
-                    <Icon name="i-heroicons-trash" />
-                  </UButton>
-                </div>
+              <div class="flex gap-2 justify-center w-full mt-2 pt-2 border-t border-gray-100">
+                <UButton size="md" variant="solid" class="bg-red-600 hover:bg-red-500 w-full flex justify-center" @click="deleteBanner(item.id)">
+                  <Icon name="i-heroicons-trash" class="mr-1" /> Delete Banner
+                </UButton>
               </div>
             </div>
           </div>

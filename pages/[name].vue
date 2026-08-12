@@ -156,7 +156,7 @@ onMounted(
           <CoreItemsSearch v-model="selectedKeyword" />
         </template>
         <template v-if="listing && Object.keys(listing).length">
-          <div class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:py-4 my-3 max-md:min-h-[80vh] max-md:items-center">
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:py-4 my-3 items-stretch">
             <CoreItemCard :data="listing" :shop-id="shopDetail.id" />
           </div>
         </template>

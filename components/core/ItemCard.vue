@@ -11,14 +11,37 @@ const loading = ref(false)
 const toast = useToast()
 const count = ref({})
 const preparationPref = ref({})
+const itemNote = ref({})
+
+function syncWithCart() {
+  if (props.data) {
+    Object.keys(props.data).forEach((key) => {
+      const item = props.data[key]
+      const existingInCart = cartStore.cartItems.find(i => i.name === item.name)
+      if (existingInCart) {
+        count.value[key] = existingInCart.count
+        preparationPref.value[key] = existingInCart.preparation_preference || 'separate'
+        itemNote.value[key] = existingInCart.item_note || ''
+      } else {
+        if (!count.value[key]) count.value[key] = 1
+        if (!preparationPref.value[key]) preparationPref.value[key] = 'separate'
+        if (itemNote.value[key] === undefined) itemNote.value[key] = ''
+      }
+    })
+  }
+}
 
 onMounted(() => {
-  count.value = Object.keys(props.data).reduce((acc, key) => {
-    acc[key] = 1
-    preparationPref.value[key] = 'separate'
-    return acc
-  }, {})
+  syncWithCart()
 })
+
+watch(() => cartStore.cartItems, () => {
+  syncWithCart()
+}, { deep: true })
+
+watch(() => props.data, () => {
+  syncWithCart()
+}, { deep: true })
 
 function getItemUnitLabel(item) {
   if (item.unit) return item.unit;
@@ -42,17 +65,18 @@ function submit(item, quantity, price, key) {
 
   const unit = getItemUnitLabel(item)
   const pref = preparationPref.value[key] || 'separate'
+  const note = itemNote.value[key] || ''
   const existingItem = cartStore.cartItems.find(i => i.name === item.name)
 
   if (existingItem) {
-    if (existingItem.count === quantity && existingItem.preparation_preference === pref) {
+    if (existingItem.count === quantity && existingItem.preparation_preference === pref && existingItem.item_note === note) {
       toast.add({ timeout: 1500, title: 'Item already in cart with same preferences', color: 'red', icon: 'i-heroicons-x-circle' })
       loading.value = false
       return
     }
   }
 
-  cartStore.addItem(item.name, quantity, price, props.shopId, unit, pref)
+  cartStore.addItem(item.name, quantity, price, props.shopId, unit, pref, note)
   
   if (existingItem)
     toast.add({ timeout: 1500, title: 'Cart updated', color: 'green', icon: 'i-heroicons-check-badge' })
@@ -74,24 +98,24 @@ function isInCart(itemName) {
 
 <template>
   <template v-for="(item, key) in data" :key="item.id">
-    <div v-if="item.active" class="flex flex-col p-5 border border-gray-200 rounded-xl max-w-[400px] w-full mx-auto bg-white shadow-sm hover:shadow-md transition-shadow">
-      <div class="max-h-[150px] h-full overflow-hidden relative">
-        <img :src="item.image_name" class="object-contain max-h-[150px] w-full h-full" :alt="item.image_name">
-        <div v-if="item.unit || item.unit_type" class="absolute top-1 right-1 bg-primary/90 text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full shadow-sm">
-          {{ getItemUnitLabel(item) }}
+    <div v-if="item.active" class="flex flex-col p-4 sm:p-5 border border-gray-200 rounded-xl max-w-[400px] w-full mx-auto bg-white shadow-sm hover:shadow-md transition-shadow h-full justify-between">
+      <div>
+        <div class="max-h-[150px] h-[150px] overflow-hidden relative rounded-lg bg-gray-50 flex items-center justify-center">
+          <img :src="item.image_name" class="object-contain max-h-[150px] w-full h-full" :alt="item.image_name">
+          <div v-if="item.unit || item.unit_type" class="absolute top-1 right-1 bg-primary/90 text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full shadow-sm">
+            {{ getItemUnitLabel(item) }}
+          </div>
         </div>
-      </div>
-      <div class="flex flex-col justify-between h-full">
-        <div class="flex flex-col justify-between h-full">
+        <div class="flex flex-col justify-between mt-2">
           <div>
-            <div class="text-base font-semibold mt-2 text-[#253D4E] flex items-center justify-between gap-2">
-              <span>{{ item.name }}</span>
+            <div class="text-base font-semibold text-[#253D4E] flex items-center justify-between gap-2">
+              <span class="truncate">{{ item.name }}</span>
             </div>
-            <div v-if="item.description" class="text-sm font-medium py-2 text-gray-500">
+            <div v-if="item.description" class="text-sm font-medium py-1.5 text-gray-500 line-clamp-2">
               {{ item.description }}
             </div>
           </div>
-          <div class="flex flex-col gap-3 pb-2 mt-2">
+          <div class="flex flex-col gap-2.5 pb-2 mt-2">
             <CoreCounter v-model="count[key]" />
 
             <!-- Preparation Choice for Quantity > 1 (Weight-based items only) -->
@@ -109,12 +133,25 @@ function isInCart(itemName) {
               </div>
             </div>
 
-            <div class="flex gap-1 items-baseline">
-              <div class="text-primary font-semibold text-3xl">
-                <span class="text-sm">{{ cartStore.getCurrency }}</span>{{ Number(item.db_price).toFixed(2) }}
+            <!-- Item Note / Special Instructions -->
+            <div class="mt-1">
+              <label class="block text-[11px] font-semibold text-gray-500 mb-1">
+                Note / Special Instructions:
+              </label>
+              <input
+                v-model="itemNote[key]"
+                type="text"
+                placeholder="e.g. less sugar, extra sauce"
+                class="w-full px-2.5 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary text-gray-700 bg-gray-50/50"
+              />
+            </div>
+
+            <div class="flex gap-1 items-baseline mt-1">
+              <div class="text-primary font-semibold text-2xl sm:text-3xl">
+                <span class="text-xs sm:text-sm">{{ cartStore.getCurrency }}</span>{{ Number(item.db_price).toFixed(2) }}
               </div>
-              <div v-if="item.price && Number(item.price) > Number(item.db_price)" class="line-through text-[#adadad] font-medium text-sm">
-                <span class="text-xs">{{ cartStore.getCurrency }} </span>{{ Number(item.price).toFixed(2) }}
+              <div v-if="item.price && Number(item.price) > Number(item.db_price)" class="line-through text-[#adadad] font-medium text-xs sm:text-sm">
+                <span class="text-[10px] sm:text-xs">{{ cartStore.getCurrency }} </span>{{ Number(item.price).toFixed(2) }}
               </div>
               <span v-if="item.unit || item.unit_type" class="text-xs text-gray-400 font-medium ml-1">
                 / {{ getItemUnitLabel(item) }}
@@ -122,36 +159,40 @@ function isInCart(itemName) {
             </div>
           </div>
         </div>
+      </div>
 
-        <div v-if="isInCart(item.name)" class="grid grid-cols-6 gap-2 mt-2">
+      <!-- Action Buttons Container - Responsive Flex Layout -->
+      <div class="mt-3 pt-2 border-t border-gray-100 w-full">
+        <div v-if="isInCart(item.name)" class="flex gap-2 w-full">
           <UButton
             :loading="loading"
-            size="lg"
-            class="flex items-center justify-center w-full col-span-4"
+            size="md"
+            class="flex-1 flex items-center justify-center min-w-0"
             @click="submit(item, count[key], item.db_price, key)"
           >
-            <Icon name="lucide:shopping-cart" />
-            Update Cart
+            <Icon name="lucide:shopping-cart" class="shrink-0 mr-1" />
+            <span class="truncate">Update Cart</span>
           </UButton>
           <UButton
-            size="lg"
+            size="md"
             variant="outline"
-            class="flex items-center justify-center w-full col-span-2"
+            color="red"
+            class="flex items-center justify-center shrink-0 px-3"
             @click="removeItem(item.name)"
           >
-            <Icon name="lucide:trash" />
-            Delete
+            <Icon name="lucide:trash" class="shrink-0" />
+            <span class="hidden sm:inline ml-1">Delete</span>
           </UButton>
         </div>
         <UButton
           v-else
           :loading="loading"
-          size="lg"
-          class="flex items-center justify-center w-full col-span-4 mt-2"
+          size="md"
+          class="w-full flex items-center justify-center"
           @click="submit(item, count[key], item.db_price, key)"
         >
-          <Icon name="lucide:shopping-cart" />
-          Add to cart
+          <Icon name="lucide:shopping-cart" class="shrink-0 mr-1" />
+          <span>Add to cart</span>
         </UButton>
       </div>
     </div>
