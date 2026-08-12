@@ -2,19 +2,44 @@
 import axios from 'axios'
 import { z } from 'zod'
 
-const props = defineProps({ modelValue: Boolean, shopId: Number, categoryList: Array ,data: Object,})
+const props = defineProps({ modelValue: Boolean, shopId: Number, categoryList: Array, data: Object })
 const emit = defineEmits(['update:modelValue', 'submitSuccess'])
 const isOpen = computed({
   get: () => props.modelValue,
   set: value => emit('update:modelValue', value),
 })
 
+const unitOptions = [
+  { label: 'Kilogram (kg)', value: 'kg' },
+  { label: 'Gram (g)', value: 'g' },
+  { label: 'Pound (lb)', value: 'lb' },
+  { label: 'Ounce (oz)', value: 'oz' },
+  { label: 'Piece (pcs)', value: 'pcs' },
+  { label: 'Dozen (12 pcs)', value: 'dozen' },
+  { label: 'Half Dozen (6 pcs)', value: 'half dozen' },
+  { label: 'Slice', value: 'slice' },
+  { label: 'Portion', value: 'portion' },
+  { label: 'Tray / Platter', value: 'tray' },
+  { label: 'Litre (L)', value: 'litre' },
+  { label: 'Millilitre (ml)', value: 'ml' },
+  { label: 'Box', value: 'box' },
+  { label: 'Pack', value: 'pack' },
+  { label: 'Jar', value: 'jar' },
+  { label: 'Bottle', value: 'bottle' },
+  { label: 'Can', value: 'can' },
+  { label: 'Set / Combo', value: 'set' },
+  { label: 'Custom Unit...', value: 'custom' },
+]
+
 const state = reactive({
-  id:undefined,
+  id: undefined,
   name: undefined,
   price: undefined,
   dibi_price: undefined,
   count: undefined,
+  unit_type: 'kg',
+  unit_value: 1,
+  custom_unit: '',
   category_id: undefined,
   image: null,
   active: true,
@@ -23,20 +48,20 @@ const state = reactive({
 })
 
 watch(() => props.data, (newData) => {
+  if (!newData) return
   state.id = newData.id
   state.name = newData.name
   state.price = Number(newData.price)
   state.dibi_price = Number(newData.db_price)
   state.count = newData.available_count
+  state.unit_type = newData.unit_type || 'kg'
+  state.unit_value = newData.unit_value || 1
+  state.custom_unit = (newData.unit_type === 'custom') ? newData.unit : ''
   state.category_id = newData.category_id
   state.image = newData.image_name
   state.active = (newData.active === 1)
   state.offer = (newData.offer === 1)
 }, { immediate: true })
-
-
-
-
 
 const schema = z.object({
   name: z.string().min(2, 'Must be at least 2 characters'),
@@ -56,21 +81,26 @@ const config = useRuntimeConfig()
 const loading = ref(false)
 const toast = useToast()
 
-
-
 function changeFile(event) {
   state.image = event.target.files[0]
 }
 
 async function submit() {
+  const constructedUnit = state.unit_type === 'custom'
+    ? (state.custom_unit || '1 pc')
+    : `${state.unit_value || 1} ${state.unit_type}`
+
   const formData = new FormData()
   formData.append('name', state.name)
   formData.append('price', state.price)
   formData.append('dibi_price', state.dibi_price)
   formData.append('image', state.image)
   formData.append('count', state.count)
+  formData.append('unit_type', state.unit_type)
+  formData.append('unit_value', state.unit_value || 1)
+  formData.append('unit', constructedUnit)
   formData.append('shop_id', props.shopId)
-  formData.append('id',  state.id)
+  formData.append('id', state.id)
   formData.append('category_id', state.category_id)
   formData.append('active', state.active ? 1 : 0)
   formData.append('offer', state.offer ? 1 : 0)
@@ -90,7 +120,7 @@ async function submit() {
     isOpen.value = false
   }
   catch (error) {
-    toast.add({ title: error.response.data.message, color: 'red', icon: 'i-heroicons-x-circle' })
+    toast.add({ title: error?.response?.data?.message || 'Error updating item', color: 'red', icon: 'i-heroicons-x-circle' })
   }
   finally {
     loading.value = false
@@ -110,22 +140,45 @@ async function submit() {
         @click="isOpen = false"
       />
       <div class="py-2 text-3xl text-center font-bold">
-        Add your Items
+        Edit Item
       </div>
       <UForm :state="state" class="space-y-4" :schema="schema" @submit="submit">
         <UFormGroup label="Item Name" required name="name">
           <UInput v-model="state.name" />
         </UFormGroup>
-        <UFormGroup label="Price" required name="price">
-          <UInput v-model="state.price" type="number" step="0.001" />
-        </UFormGroup>
-        <UFormGroup label="Discounted Price" description="Actual Price" required name="dibi_price">
-          <UInput v-model="state.dibi_price" type="number" step="0.001" />
-        </UFormGroup>
+
+        <div class="grid grid-cols-2 gap-3">
+          <UFormGroup label="Price" required name="price">
+            <UInput v-model="state.price" type="number" step="0.001" />
+          </UFormGroup>
+          <UFormGroup label="Discounted Price" description="Actual Price" required name="dibi_price">
+            <UInput v-model="state.dibi_price" type="number" step="0.001" />
+          </UFormGroup>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
+          <UFormGroup label="Unit Size / Quantity" required name="unit_value" description="e.g. 1, 0.5, 500">
+            <UInput v-model="state.unit_value" type="text" placeholder="1" />
+          </UFormGroup>
+          <UFormGroup label="Unit Type" required name="unit_type">
+            <USelectMenu
+              v-model="state.unit_type"
+              value-attribute="value"
+              option-attribute="label"
+              :options="unitOptions"
+            />
+          </UFormGroup>
+          <div v-if="state.unit_type === 'custom'" class="col-span-2">
+            <UFormGroup label="Specify Custom Unit" required name="custom_unit">
+              <UInput v-model="state.custom_unit" placeholder="e.g. 1 Box of 6" />
+            </UFormGroup>
+          </div>
+        </div>
+
         <UFormGroup label="Count" required name="count">
           <UInput v-model="state.count" type="number" />
         </UFormGroup>
-        <UFormGroup label="Image" required name="image">
+        <UFormGroup label="Image" name="image">
           <input type="file" @change="changeFile">
         </UFormGroup>
         <UFormGroup label="Category" required name="category">
@@ -147,7 +200,7 @@ async function submit() {
           :loading="loading"
           class="w-full flex justify-center"
         >
-          Register
+          Update Item
         </UButton>
       </UForm>
     </div>

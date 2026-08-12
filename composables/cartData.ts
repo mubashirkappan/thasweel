@@ -5,6 +5,9 @@ interface CartItem {
   name: string;
   count: number;
   price: number;
+  unit?: string;
+  preparation_preference?: 'separate' | 'single_combined';
+  item_note?: string;
 }
 
 export const useCartStore = defineStore('cartStore', {
@@ -24,7 +27,15 @@ export const useCartStore = defineStore('cartStore', {
       }
       this.activeShopId = shopId;
     },
-    addItem(itemName: string, quantity: number = 1, price: number, shopId: string | number) {
+    addItem(
+      itemName: string,
+      quantity: number = 1,
+      price: number,
+      shopId: string | number,
+      unit?: string,
+      preparation_preference?: 'separate' | 'single_combined',
+      item_note?: string
+    ) {
       this.initShopCart(shopId); // Sync shop context
 
       const existingItem = this.cartItems.find((i) => i.name === itemName);
@@ -32,21 +43,39 @@ export const useCartStore = defineStore('cartStore', {
       if (existingItem) {
         existingItem.count = Number(quantity);
         existingItem.price = Number(price);
+        if (unit) existingItem.unit = unit;
+        if (preparation_preference) existingItem.preparation_preference = preparation_preference;
+        if (item_note !== undefined) existingItem.item_note = item_note;
       } else {
         this.cartItems.push({ 
           name: itemName, 
           count: Number(quantity), 
           price: Number(price), 
-          currency: this.currency 
+          currency: this.currency,
+          unit: unit || '',
+          preparation_preference: preparation_preference || 'separate',
+          item_note: item_note || '',
         });
       }
     },
-    updateItem(itemName: string, quantity: number, price?: number) {
+    updateItem(
+      itemName: string,
+      quantity: number,
+      price?: number,
+      preparation_preference?: 'separate' | 'single_combined',
+      item_note?: string
+    ) {
       const item = this.cartItems.find((i) => i.name === itemName);
       if (item) {
         item.count = Number(quantity);
         if (price !== undefined) {
           item.price = Number(price);
+        }
+        if (preparation_preference) {
+          item.preparation_preference = preparation_preference;
+        }
+        if (item_note !== undefined) {
+          item.item_note = item_note;
         }
       }
     },
@@ -73,12 +102,15 @@ export const useCartStore = defineStore('cartStore', {
     itemPrices(): number[] {
       return this.cartItems.map((item) => item.price);
     },
-    itemsWithPrices(): { name: string; pricePerItem: number; quantity: number; totalPrice: number }[] {
+    itemsWithPrices(): { name: string; pricePerItem: number; quantity: number; totalPrice: number; unit?: string; preparation_preference?: string; item_note?: string }[] {
       return this.cartItems.map((item) => ({
         name: item.name,
-        pricePerItem: Number(item.price), // FIXED: Kept as decimal float
+        pricePerItem: Number(item.price),
         quantity: item.count,
-        totalPrice: Number(item.price) * item.count, // FIXED: Kept as decimal float
+        totalPrice: Number(item.price) * item.count,
+        unit: item.unit,
+        preparation_preference: item.preparation_preference,
+        item_note: item.item_note,
       }));
     },
     totalAmount(): number {

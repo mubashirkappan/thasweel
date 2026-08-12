@@ -447,11 +447,30 @@ onMounted(() => {
                 <img :src="item.image_name" class="object-cover rounded-md w-full h-full max-h-[200px] object-center" alt="">
               </div>
 
-              <div class="flex flex-col gap-2 justify-start">
-                <div v-if="item.name" class=" text-xl truncate max-w-[120px] h-full">
+              <div class="flex flex-col gap-1.5 justify-start w-full">
+                <div v-if="item.name" class="text-base font-bold truncate max-w-[200px] text-gray-900">
                   {{ item.name }}
                 </div>
-                <div class="flex gap-2 ">
+                
+                <div class="flex flex-wrap items-center gap-1.5 text-xs">
+                  <span class="font-bold text-primary text-sm">
+                    {{ cartStore.getCurrency }}{{ Number(item.db_price || item.price || 0).toFixed(2) }}
+                  </span>
+                  <span v-if="item.price && Number(item.price) > Number(item.db_price)" class="line-through text-gray-400 text-xs">
+                    {{ cartStore.getCurrency }}{{ Number(item.price).toFixed(2) }}
+                  </span>
+                  <span v-if="item.unit || item.unit_type" class="font-medium text-gray-500 text-xs">
+                    / {{ item.unit || `${item.unit_value || 1} ${item.unit_type}` }}
+                  </span>
+                </div>
+
+                <div class="flex items-center justify-between text-xs mt-0.5">
+                  <span class="bg-gray-100 text-gray-700 font-semibold px-2 py-0.5 rounded text-[11px]">
+                    Stock: {{ item.available_count ?? item.count ?? 0 }}
+                  </span>
+                </div>
+
+                <div class="flex gap-2 mt-1">
                   <UButton size="xl" variant="solid" class="bg-primary hover:bg-primary/80" @click="toggleVisibilityItem(item.encrypted_id)">
                     <Icon name="i-mdi-eye-off-outline" />
                   </UButton>

@@ -16,6 +16,11 @@ const formattedData = ref()
 const isOpen = ref(false)
 const link = ref()
 
+function isWeightBased(unit) {
+  if (!unit) return false;
+  return /(\bkg\b|\bg\b|\blb\b|\boz\b|kilo|gram|pound|ounce)/i.test(String(unit));
+}
+
 function fetchData() {
   loading.value = true
   $fetch(`${config.public.apiBaseUrl}/get-cart`, {
@@ -143,37 +148,47 @@ onMounted(() => {
                 :alt="`image of ${cartItem.item_name}` "
               >
             </div>
-            <div class="flex flex-col justify-between h-full">
+            <div class="flex flex-col justify-between h-full w-full">
               <div class="flex flex-col justify-between h-full">
                 <div>
-                  <div class="text-base font-semibold mt-2 text-[#253D4E]">
-                    {{ cartItem.item_name }}
+                  <div class="text-base font-semibold mt-2 text-[#253D4E] flex items-center gap-2 flex-wrap">
+                    <span>{{ cartItem.item_name }}</span>
+                    <UBadge v-if="cartItem.unit || cartItem.item?.unit" color="gray" variant="soft" size="xs">
+                      {{ cartItem.unit || cartItem.item?.unit }}
+                    </UBadge>
                   </div>
-                <!-- <div
-                  v-if="cartItem.description"
-                  class="text-sm font-medium py-3"
-                >
-                  {{ cartItem.description }}
-                </div> -->
+
+                  <!-- Homebaker Preparation Badge (Weight-based items only) -->
+                  <div v-if="cartItem.count > 1 && isWeightBased(cartItem.unit || cartItem.item?.unit)" class="mt-1">
+                    <span
+                      v-if="cartItem.preparation_preference === 'single_combined'"
+                      class="inline-flex items-center gap-1 text-[11px] font-bold text-purple-700 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded"
+                    >
+                      <Icon name="lucide:package" class="w-3 h-3" />
+                      1 Single Combined Piece (Total Weight)
+                    </span>
+                    <span
+                      v-else
+                      class="inline-flex items-center gap-1 text-[11px] font-medium text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded"
+                    >
+                      <Icon name="lucide:layers" class="w-3 h-3" />
+                      {{ cartItem.count }} Separate Items ({{ cartItem.unit || '1 pc' }} each)
+                    </span>
+                  </div>
                 </div>
-                <div class="flex flex-col gap-3 pb-2">
-                  <div class="flex  flex-wrap  gap-1 items-center">
-                    <div class="text-primary font-semibold text-3xl">
-                      <span class="text-sm">{{ cartStore.getCurrency }}</span>{{ cartItem.dibi_price }}
+                <div class="flex flex-col gap-3 pb-2 mt-2">
+                  <div class="flex flex-wrap gap-1 items-center">
+                    <div class="text-primary font-semibold text-2xl">
+                      <span class="text-xs">{{ cartStore.getCurrency }}</span>{{ cartItem.dibi_price }}
                     </div>
 
-                    <div class=" text-[#adadad] font-medium text-xl">
-                      x{{ cartItem.count }} = {{ cartItem.dibi_price * cartItem.count }}
+                    <div class="text-gray-500 font-medium text-sm">
+                      x {{ cartItem.count }} = <span class="font-bold text-gray-900">{{ cartStore.getCurrency }}{{ cartItem.dibi_price * cartItem.count }}</span>
                     </div>
                   </div>
 
                   <div class="flex gap-4">
-                    <!-- <div class="text-gray-400 font-[poppins] font-xl">
-                      Quantity
-                    </div>
-                    <CoreCounter :init-value="cartItem.quantity" /> -->
-                    <!-- <UDivider orientation="vertical" /> -->
-                    <UButton variant="soft" color="red" class="text-red-400" @click="deleteFromCart(cartItem.item_id)">
+                    <UButton variant="soft" color="red" size="xs" class="text-red-400" @click="deleteFromCart(cartItem.item_id)">
                       <Icon name="i-heroicons-trash" /> Delete
                     </UButton>
                   </div>

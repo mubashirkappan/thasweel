@@ -17,6 +17,11 @@ const fetchedOrderData = ref([])
 const countryCode = ref(null)
 const shopId = ref(null)
 
+function isWeightBased(unit) {
+  if (!unit) return false;
+  return /(\bkg\b|\bg\b|\blb\b|\boz\b|kilo|gram|pound|ounce)/i.test(String(unit));
+}
+
 const countryTimeZones = {
   AED: 'Asia/Dubai',
   INR: 'Asia/Kolkata',
@@ -297,11 +302,35 @@ onMounted(() => { fetchShopList() })
 
             <div class="mt-6 bg-gray-50 rounded-lg p-4">
               <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Order Summary</h4>
-              <div v-for="item in order.items" :key="item.id" class="flex justify-between py-1 border-b border-gray-200 last:border-0 text-sm">
-                <span class="text-gray-600">
-                  <span class="font-bold text-gray-900">{{ item.quantity }}x</span> {{ item.name }}
-                </span>
-                <span class="font-mono font-medium">{{ item.totalPrice }} {{ cartStore.getCurrency }}</span>
+              <div v-for="item in order.items" :key="item.id" class="flex flex-col py-2 border-b border-gray-200 last:border-0 text-sm">
+                <div class="flex justify-between items-center">
+                  <span class="text-gray-600 font-medium">
+                    <span class="font-bold text-gray-900">{{ item.quantity }}x</span> {{ item.name }}
+                    <span v-if="item.unit" class="text-xs text-gray-500 font-normal">({{ item.unit }})</span>
+                  </span>
+                  <span class="font-mono font-medium">{{ item.totalPrice }} {{ cartStore.getCurrency }}</span>
+                </div>
+                
+                <!-- Homebaker Preparation Badge (Weight-based items only) -->
+                <div v-if="(item.quantity > 1 || item.preparation_preference) && isWeightBased(item.unit)" class="mt-1 flex items-center gap-1.5 flex-wrap">
+                  <span
+                    v-if="item.preparation_preference === 'single_combined'"
+                    class="inline-flex items-center gap-1 text-[11px] font-bold text-purple-800 bg-purple-100 border border-purple-300 px-2 py-0.5 rounded-full"
+                  >
+                    <Icon name="lucide:package-check" class="w-3 h-3" />
+                    PREFERENCE: 1 Single Combined Piece (Total Weight)
+                  </span>
+                  <span
+                    v-else-if="item.preparation_preference === 'separate' || item.quantity > 1"
+                    class="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-800 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-full"
+                  >
+                    <Icon name="lucide:layers" class="w-3 h-3" />
+                    PREFERENCE: {{ item.quantity }} Separate Items ({{ item.unit || '1 pc' }} each)
+                  </span>
+                  <span v-if="item.item_note" class="text-xs italic text-gray-500">
+                    "{{ item.item_note }}"
+                  </span>
+                </div>
               </div>
             </div>
           </div>
