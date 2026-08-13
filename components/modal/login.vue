@@ -59,6 +59,10 @@ function submit() {
       loading.value = false
     })
 }
+function openModal() {
+  loginPop.value = true
+}
+
 function handleSlotClick() {
   loginPop.value = true
   leadGen.value = false
@@ -66,50 +70,53 @@ function handleSlotClick() {
 </script>
 
 <template>
-  <UButton
-    v-if="!custom"
-    class="flex items-center justify-center px-3 text-white transition-colors border rounded border-primary bg-primary hover:bg-white hover:text-primary"
-    @click="loginPop = true"
-  >
-    Log In
-  </UButton>
-  <UButton v-else :variant="variant" @click="handleSlotClick">
-    <slot />
-  </UButton>
-  <UModal v-model="loginPop">
-    <div class="relative pt-0 p-6">
-      <UButton
-        color="gray"
-        variant="ghost"
-        icon="i-heroicons-x-mark-20-solid"
-        class="-my-1 absolute top-2 right-1"
-        @click="loginPop = false"
-      />
-      <div class="py-2 text-3xl text-center font-bold">
-        Log in
-      </div>
-      <UForm :state="state" class="space-y-4" :schema="schema" @submit="submit">
-        <UFormGroup label="Username" name="identifier" required>
-          <UInput v-model="state.identifier" />
-        </UFormGroup>
-        <UFormGroup label="Password" name="password" required>
-          <div class="relative">
-            <UInput v-model="state.password" :type="showPassword ? 'text' : 'password'" />
-            <Icon
-              :name="showPassword ? 'i-mdi-eye-outline' : 'i-mdi-eye-off-outline'"
-              class="absolute transform -translate-y-1/2 cursor-pointer top-1/2 right-3"
-              @click="showPassword = !showPassword"
-            />
-          </div>
-        </UFormGroup>
+  <div>
+    <UButton
+      v-if="!custom"
+      class="flex items-center justify-center px-3 text-white transition-colors border rounded border-primary bg-primary hover:bg-white hover:text-primary cursor-pointer"
+      @click="openModal"
+    >
+      Log In
+    </UButton>
+    <UButton v-else :variant="variant" @click="handleSlotClick">
+      <slot />
+    </UButton>
+
+    <UModal v-model="loginPop">
+      <div class="relative pt-0 p-6">
         <UButton
-          type="submit"
-          :loading="loading"
-          class="w-full flex justify-center"
-        >
-          Log In
-        </UButton>
-      </UForm>
-    </div>
-  </UModal>
+          color="gray"
+          variant="ghost"
+          icon="i-heroicons-x-mark-20-solid"
+          class="-my-1 absolute top-2 right-1"
+          @click="loginPop = false"
+        />
+        <div class="py-2 text-3xl text-center font-bold">
+          Log in
+        </div>
+        <UForm :state="state" class="space-y-4" :schema="schema" @submit="submit">
+          <UFormGroup label="Username" name="identifier" required>
+            <UInput v-model="state.identifier" />
+          </UFormGroup>
+          <UFormGroup label="Password" name="password" required>
+            <div class="relative">
+              <UInput v-model="state.password" :type="showPassword ? 'text' : 'password'" />
+              <Icon
+                :name="showPassword ? 'i-mdi-eye-outline' : 'i-mdi-eye-off-outline'"
+                class="absolute transform -translate-y-1/2 cursor-pointer top-1/2 right-3"
+                @click="showPassword = !showPassword"
+              />
+            </div>
+          </UFormGroup>
+          <UButton
+            type="submit"
+            :loading="loading"
+            class="w-full flex justify-center"
+          >
+            Log In
+          </UButton>
+        </UForm>
+      </div>
+    </UModal>
+  </div>
 </template>

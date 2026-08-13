@@ -109,6 +109,49 @@ function deleteFromCart(itemId) {
     })
 }
 
+function openWhatsAppFromLink(rawLink, targetType) {
+  if (!rawLink) return
+  try {
+    const url = new URL(rawLink)
+    const phone = url.pathname.replace('/', '')
+    const text = url.searchParams.get('text') || ''
+    const isAndroid = typeof navigator !== 'undefined' && /android/i.test(navigator.userAgent)
+    const encodedText = encodeURIComponent(text)
+
+    let targetUrl = rawLink
+    if (targetType === 'standard') {
+      if (isAndroid) {
+        targetUrl = `intent://send?phone=${phone}&text=${encodedText}#Intent;scheme=whatsapp;package=com.whatsapp;end`
+      } else {
+        targetUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${encodedText}`
+      }
+    } else if (targetType === 'business') {
+      if (isAndroid) {
+        targetUrl = `intent://send?phone=${phone}&text=${encodedText}#Intent;scheme=whatsapp;package=com.whatsapp.w4b;end`
+      } else {
+        targetUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${encodedText}`
+      }
+    } else if (targetType === 'web') {
+      targetUrl = `https://web.whatsapp.com/send?phone=${phone}&text=${encodedText}`
+    } else {
+      targetUrl = `https://wa.me/${phone}?text=${encodedText}`
+    }
+
+    isOpen.value = false
+    if (targetType === 'web' || !isAndroid) {
+      const win = window.open(targetUrl, '_blank')
+      if (!win) {
+        window.location.href = targetUrl
+      }
+    } else {
+      window.location.href = targetUrl
+    }
+  } catch (e) {
+    isOpen.value = false
+    window.location.href = rawLink
+  }
+}
+
 onMounted(() => {
   fetchData()
 })
@@ -252,17 +295,47 @@ onMounted(() => {
         </div>
       </template>
 
-      <div class="pb-3">
-        Please click the link below to confirm your order with a quick WhatsApp
-        message to the shop owner.
+      <div class="pb-3 text-xs text-gray-500">
+        Choose how you want to send your WhatsApp order message:
       </div>
-      <NuxtLink
-        class="bg-[#fc544c] ml-auto border border-[#fc544c] text-center hover:bg-white hover:text-[#fc544c] text-white p-3 rounded-md text-sm font-medium flex items-center justify-center gap-1"
-        :to="link"
-      >
-        <Icon name="ic:outline-whatsapp" class="text-2xl" />
-        Proceed To Order
-      </NuxtLink>
+      <div class="flex flex-col gap-2.5">
+        <UButton
+          size="lg"
+          class="w-full bg-green-600 hover:bg-green-700 text-white flex items-center justify-center gap-2 font-medium"
+          @click="openWhatsAppFromLink(link, 'standard')"
+        >
+          <Icon name="ic:baseline-whatsapp" class="text-xl" />
+          <span>Open in Standard WhatsApp</span>
+        </UButton>
+
+        <UButton
+          size="lg"
+          class="w-full bg-emerald-700 hover:bg-emerald-800 text-white flex items-center justify-center gap-2 font-medium"
+          @click="openWhatsAppFromLink(link, 'business')"
+        >
+          <Icon name="lucide:building-2" class="text-xl" />
+          <span>Open in WhatsApp Business</span>
+        </UButton>
+
+        <UButton
+          size="lg"
+          variant="soft"
+          color="gray"
+          class="w-full flex items-center justify-center gap-2 font-medium"
+          @click="openWhatsAppFromLink(link, 'web')"
+        >
+          <Icon name="lucide:globe" class="text-xl" />
+          <span>Open in WhatsApp Web</span>
+        </UButton>
+
+        <button
+          type="button"
+          class="text-xs text-gray-400 hover:text-gray-600 underline pt-1 cursor-pointer text-center"
+          @click="openWhatsAppFromLink(link, 'default')"
+        >
+          Use Default Link (wa.me)
+        </button>
+      </div>
     </UCard>
   </UModal>
 </template>
