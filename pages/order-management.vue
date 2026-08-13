@@ -318,7 +318,7 @@ onMounted(() => { fetchShopList() })
                     class="inline-flex items-center gap-1 text-[11px] font-bold text-purple-800 bg-purple-100 border border-purple-300 px-2 py-0.5 rounded-full"
                   >
                     <Icon name="lucide:package-check" class="w-3 h-3" />
-                    PREFERENCE: 1 Single Combined Piece (Total Weight)
+                    PREFERENCE: One {{ item.name || 'item' }} with total weight
                   </span>
                   <span
                     v-else-if="item.preparation_preference === 'separate' || item.quantity > 1"

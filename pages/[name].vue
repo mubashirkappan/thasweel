@@ -134,6 +134,22 @@ function getData() {
   }
 }
 
+const hasAvailableItems = computed(() => {
+  if (!listing.value) return false
+  const items = Array.isArray(listing.value) ? listing.value : Object.values(listing.value)
+  return items.some((item) => {
+    if (!item) return false
+    if (item.active === false || item.active === 0 || item.active === '0') return false
+    const stock = item.available_count !== undefined && item.available_count !== null
+      ? item.available_count
+      : (item.count !== undefined && item.count !== null ? item.count : null)
+    if (stock !== null && stock !== undefined) {
+      return Number(stock) > 0
+    }
+    return true
+  })
+})
+
 watch([selectedCategory, selectedKeyword], () => {
   fetchItems()
 })
@@ -155,11 +171,9 @@ onMounted(
         <template #search>
           <CoreItemsSearch v-model="selectedKeyword" />
         </template>
-        <template v-if="listing && Object.keys(listing).length">
-          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:py-4 my-3 items-stretch">
-            <CoreItemCard :data="listing" :shop-id="shopDetail.id" />
-          </div>
-        </template>
+        <div v-if="hasAvailableItems" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:py-4 my-3 items-stretch">
+          <CoreItemCard :data="listing" :shop-id="shopDetail.id" />
+        </div>
         <div v-else>
           <div
             class="w-full flex items-center flex-col justify-center font-medium text-xl py-10 min-h-[40vh]"

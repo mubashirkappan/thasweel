@@ -63,18 +63,17 @@ function confirmOrder(shopId) {
   })
     .then((response) => {
       ItemsCount.value = response.data.cartItemCountNotPurchased
-      isOpen.value = true
-      link.value = response.data.link
       toast.add({
         title: response.message,
         color: 'green',
         icon: 'i-heroicons-check-badge',
       })
       fetchData()
+      openWhatsAppFromLink(response.data.link)
     })
     .catch(({ data }) => {
       toast.add({
-        title: data.message,
+        title: data?.message || 'Failed to confirm order',
         color: 'red',
         icon: 'i-heroicons-x-circle',
       })
@@ -109,7 +108,7 @@ function deleteFromCart(itemId) {
     })
 }
 
-function openWhatsAppFromLink(rawLink, targetType) {
+function openWhatsAppFromLink(rawLink) {
   if (!rawLink) return
   try {
     const url = new URL(rawLink)
@@ -118,27 +117,14 @@ function openWhatsAppFromLink(rawLink, targetType) {
     const isAndroid = typeof navigator !== 'undefined' && /android/i.test(navigator.userAgent)
     const encodedText = encodeURIComponent(text)
 
-    let targetUrl = rawLink
-    if (targetType === 'standard') {
-      if (isAndroid) {
-        targetUrl = `intent://send?phone=${phone}&text=${encodedText}#Intent;scheme=whatsapp;package=com.whatsapp;end`
-      } else {
-        targetUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${encodedText}`
-      }
-    } else if (targetType === 'business') {
-      if (isAndroid) {
-        targetUrl = `intent://send?phone=${phone}&text=${encodedText}#Intent;scheme=whatsapp;package=com.whatsapp.w4b;end`
-      } else {
-        targetUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${encodedText}`
-      }
-    } else if (targetType === 'web') {
-      targetUrl = `https://web.whatsapp.com/send?phone=${phone}&text=${encodedText}`
+    let targetUrl = ''
+    if (isAndroid) {
+      targetUrl = `intent://send?phone=${phone}&text=${encodedText}#Intent;scheme=whatsapp;package=com.whatsapp;end`
     } else {
-      targetUrl = `https://wa.me/${phone}?text=${encodedText}`
+      targetUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${encodedText}`
     }
 
-    isOpen.value = false
-    if (targetType === 'web' || !isAndroid) {
+    if (!isAndroid) {
       const win = window.open(targetUrl, '_blank')
       if (!win) {
         window.location.href = targetUrl
@@ -147,7 +133,6 @@ function openWhatsAppFromLink(rawLink, targetType) {
       window.location.href = targetUrl
     }
   } catch (e) {
-    isOpen.value = false
     window.location.href = rawLink
   }
 }
@@ -208,7 +193,7 @@ onMounted(() => {
                       class="inline-flex items-center gap-1 text-[11px] font-bold text-purple-700 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded"
                     >
                       <Icon name="lucide:package" class="w-3 h-3" />
-                      1 Single Combined Piece (Total Weight)
+                      One {{ cartItem.item_name || 'item' }} with total weight
                     </span>
                     <span
                       v-else
@@ -271,71 +256,4 @@ onMounted(() => {
       class="animate-spin text-[45px] text-primary"
     />
   </div>
-  <UModal v-model="isOpen" prevent-close>
-    <UCard
-      :ui="{
-        ring: '',
-        divide: 'divide-y divide-gray-100 dark:divide-gray-800',
-      }"
-    >
-      <template #header>
-        <div class="flex items-center justify-between">
-          <h3
-            class="text-base font-semibold leading-6 text-gray-900 dark:text-white"
-          >
-            Order Confirmation
-          </h3>
-          <UButton
-            color="gray"
-            variant="ghost"
-            icon="i-heroicons-x-mark-20-solid"
-            class="-my-1"
-            @click="isOpen = false"
-          />
-        </div>
-      </template>
-
-      <div class="pb-3 text-xs text-gray-500">
-        Choose how you want to send your WhatsApp order message:
-      </div>
-      <div class="flex flex-col gap-2.5">
-        <UButton
-          size="lg"
-          class="w-full bg-green-600 hover:bg-green-700 text-white flex items-center justify-center gap-2 font-medium"
-          @click="openWhatsAppFromLink(link, 'standard')"
-        >
-          <Icon name="ic:baseline-whatsapp" class="text-xl" />
-          <span>Open in Standard WhatsApp</span>
-        </UButton>
-
-        <UButton
-          size="lg"
-          class="w-full bg-emerald-700 hover:bg-emerald-800 text-white flex items-center justify-center gap-2 font-medium"
-          @click="openWhatsAppFromLink(link, 'business')"
-        >
-          <Icon name="lucide:building-2" class="text-xl" />
-          <span>Open in WhatsApp Business</span>
-        </UButton>
-
-        <UButton
-          size="lg"
-          variant="soft"
-          color="gray"
-          class="w-full flex items-center justify-center gap-2 font-medium"
-          @click="openWhatsAppFromLink(link, 'web')"
-        >
-          <Icon name="lucide:globe" class="text-xl" />
-          <span>Open in WhatsApp Web</span>
-        </UButton>
-
-        <button
-          type="button"
-          class="text-xs text-gray-400 hover:text-gray-600 underline pt-1 cursor-pointer text-center"
-          @click="openWhatsAppFromLink(link, 'default')"
-        >
-          Use Default Link (wa.me)
-        </button>
-      </div>
-    </UCard>
-  </UModal>
 </template>

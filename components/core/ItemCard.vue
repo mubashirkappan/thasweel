@@ -55,12 +55,44 @@ function isWeightBased(item) {
   return /(\bkg\b|\bg\b|\blb\b|\boz\b|kilo|gram|pound|ounce)/i.test(unitStr);
 }
 
+function isItemAvailable(item) {
+  if (!item) return false
+  if (item.active === false || item.active === 0 || item.active === '0') return false
+
+  const stock = item.available_count !== undefined && item.available_count !== null
+    ? item.available_count
+    : (item.count !== undefined && item.count !== null ? item.count : null)
+
+  if (stock !== null && stock !== undefined) {
+    return Number(stock) > 0
+  }
+
+  return true
+}
+
 function submit(item, quantity, price, key) {
   loading.value = true
   if (quantity < 1) {
     toast.add({ timeout: 1500, title: 'Cart item count must be greater than or equal to 1', color: 'red', icon: 'i-heroicons-x-circle' })
     loading.value = false
     return
+  }
+
+  const stockLimit = item.available_count !== undefined && item.available_count !== null
+    ? item.available_count
+    : (item.count !== undefined && item.count !== null ? item.count : null)
+
+  if (stockLimit !== null && stockLimit !== undefined) {
+    if (Number(stockLimit) <= 0) {
+      toast.add({ timeout: 1500, title: 'Item is out of stock', color: 'red', icon: 'i-heroicons-x-circle' })
+      loading.value = false
+      return
+    }
+    if (quantity > Number(stockLimit)) {
+      toast.add({ timeout: 1500, title: `Only ${stockLimit} item(s) available in stock`, color: 'red', icon: 'i-heroicons-x-circle' })
+      loading.value = false
+      return
+    }
   }
 
   const unit = getItemUnitLabel(item)
@@ -98,7 +130,7 @@ function isInCart(itemName) {
 
 <template>
   <template v-for="(item, key) in data" :key="item.id">
-    <div v-if="item.active" class="flex flex-col p-4 sm:p-5 border border-gray-200 rounded-xl max-w-[400px] w-full mx-auto bg-white shadow-sm hover:shadow-md transition-shadow h-full justify-between">
+    <div v-if="isItemAvailable(item)" class="flex flex-col p-4 sm:p-5 border border-gray-200 rounded-xl max-w-[400px] w-full mx-auto bg-white shadow-sm hover:shadow-md transition-shadow h-full justify-between">
       <div>
         <div class="max-h-[150px] h-[150px] overflow-hidden relative rounded-lg bg-gray-50 flex items-center justify-center">
           <img :src="item.image_name" class="object-contain max-h-[150px] w-full h-full" :alt="item.image_name">
@@ -128,7 +160,7 @@ function isInCart(itemName) {
                 </label>
                 <label class="flex items-center gap-1.5 cursor-pointer">
                   <input type="radio" :name="`pref-${item.id}`" value="single_combined" v-model="preparationPref[key]" class="text-primary focus:ring-primary">
-                  <span class="font-semibold text-primary">1 single combined piece (Total weight)</span>
+                  <span class="font-semibold text-primary">One {{ item.name || 'item' }} with total weight</span>
                 </label>
               </div>
             </div>

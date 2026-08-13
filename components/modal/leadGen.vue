@@ -44,9 +44,26 @@ const loading = ref(false)
 const toast = useToast()
 const config = useRuntimeConfig()
 
-const showWhatsAppModal = ref(false)
-const pendingWhatsAppMessage = ref('')
-const shopPhone = ref('')
+function sendNormalWhatsApp(phone, messageText) {
+  const text = encodeURIComponent(messageText)
+  const isAndroid = typeof navigator !== 'undefined' && /android/i.test(navigator.userAgent)
+  
+  let link = ''
+  if (isAndroid) {
+    link = `intent://send?phone=${phone}&text=${text}#Intent;scheme=whatsapp;package=com.whatsapp;end`
+  } else {
+    link = `https://api.whatsapp.com/send?phone=${phone}&text=${text}`
+  }
+
+  if (!isAndroid) {
+    const win = window.open(link, '_blank')
+    if (!win) {
+      window.location.href = link
+    }
+  } else {
+    window.location.href = link
+  }
+}
 
 function submit() {
   loading.value = true
@@ -72,10 +89,10 @@ function submit() {
     
       const cleanCC = String(props.shopDetails?.country_code || '').replace(/\D/g, '')
       const cleanPhone = String(props.shopDetails?.phone || '').replace(/\D/g, '')
+      const targetPhone = `${cleanCC}${cleanPhone}`
 
-      pendingWhatsAppMessage.value = message
-      shopPhone.value = `${cleanCC}${cleanPhone}`
-      showWhatsAppModal.value = true
+      sendNormalWhatsApp(targetPhone, message)
+      cartStore.$reset()
     })
     .catch((error) => {
       console.error('Failed to submit order:', error)
@@ -89,49 +106,6 @@ function submit() {
     .finally(() => {
       loading.value = false
     })
-}
-
-function closeWhatsAppModal() {
-  showWhatsAppModal.value = false
-  cartStore.$reset()
-}
-
-function openWhatsApp(targetType) {
-  const phone = shopPhone.value
-  const text = encodeURIComponent(pendingWhatsAppMessage.value)
-  const isAndroid = typeof navigator !== 'undefined' && /android/i.test(navigator.userAgent)
-
-  let link = ''
-  if (targetType === 'standard') {
-    if (isAndroid) {
-      link = `intent://send?phone=${phone}&text=${text}#Intent;scheme=whatsapp;package=com.whatsapp;end`
-    } else {
-      link = `https://api.whatsapp.com/send?phone=${phone}&text=${text}`
-    }
-  } else if (targetType === 'business') {
-    if (isAndroid) {
-      link = `intent://send?phone=${phone}&text=${text}#Intent;scheme=whatsapp;package=com.whatsapp.w4b;end`
-    } else {
-      link = `https://api.whatsapp.com/send?phone=${phone}&text=${text}`
-    }
-  } else if (targetType === 'web') {
-    link = `https://web.whatsapp.com/send?phone=${phone}&text=${text}`
-  } else {
-    // Default wa.me universal link
-    link = `https://wa.me/${phone}?text=${text}`
-  }
-
-  showWhatsAppModal.value = false
-  cartStore.$reset()
-
-  if (targetType === 'web' || !isAndroid) {
-    const win = window.open(link, '_blank')
-    if (!win) {
-      window.location.href = link
-    }
-  } else {
-    window.location.href = link
-  }
 }
 
 function generateMessage(data) {
@@ -152,7 +126,7 @@ function generateMessage(data) {
     
     if (item.preparation_preference) {
       if (item.preparation_preference === 'single_combined') {
-        message += `   - Fulfillment: 1 Single Combined Piece (Total weight)\n`
+        message += `   - Fulfillment: One ${item.name || 'item'} with total weight\n`
       } else if (item.quantity > 1) {
         message += `   - Fulfillment: ${item.quantity} Separate Items\n`
       }
@@ -230,7 +204,7 @@ function handleSlotClick() {
                 <!-- Preferences & Notes Preview -->
                 <div v-if="item.preparation_preference || item.item_note" class="text-xs text-gray-600 flex flex-col gap-0.5 pl-2 border-l-2 border-primary/40 mt-1">
                   <span v-if="item.preparation_preference === 'single_combined'" class="text-purple-700 font-medium">
-                    Pref: 1 Single Combined Piece
+                    Pref: One {{ item.name || 'item' }} with total weight
                   </span>
                   <span v-else-if="item.quantity > 1 && item.preparation_preference === 'separate'" class="text-amber-700 font-medium">
                     Pref: {{ item.quantity }} Separate Items
@@ -275,67 +249,6 @@ function handleSlotClick() {
               <UButton label="Buy Now and Send Message" :loading size="xl" class="self-end" type="submit" />
             </UForm>
           </div>
-        </div>
-      </div>
-    </UModal>
-
-    <!-- WhatsApp Destination Choice Modal -->
-    <UModal v-model="showWhatsAppModal" prevent-close :ui="{ width: 'sm:max-w-[480px]' }">
-      <div class="relative p-6 flex flex-col items-center text-center space-y-4 bg-white rounded-xl">
-        <UButton
-          color="gray"
-          variant="ghost"
-          icon="i-heroicons-x-mark-20-solid"
-          class="-my-1 absolute top-3 right-3 text-gray-400 hover:text-gray-600 cursor-pointer"
-          @click="closeWhatsAppModal"
-        />
-        <div class="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center text-green-600 shadow-sm mt-2">
-          <Icon name="ic:baseline-whatsapp" class="text-4xl" />
-        </div>
-        <div>
-          <h3 class="text-xl font-bold text-gray-900">Order Placed Successfully! 🎉</h3>
-          <p class="text-xs text-gray-500 mt-1">Select which WhatsApp application you want to open:</p>
-        </div>
-
-        <div class="w-full flex flex-col gap-2.5 pt-2">
-          <UButton
-            size="lg"
-            variant="solid"
-            class="w-full bg-green-600 hover:bg-green-700 text-white flex items-center justify-center gap-2 font-medium py-3 rounded-lg shadow-sm"
-            @click="openWhatsApp('standard')"
-          >
-            <Icon name="ic:baseline-whatsapp" class="text-2xl" />
-            <span>Open in Standard WhatsApp</span>
-          </UButton>
-
-          <UButton
-            size="lg"
-            variant="solid"
-            class="w-full bg-emerald-700 hover:bg-emerald-800 text-white flex items-center justify-center gap-2 font-medium py-3 rounded-lg shadow-sm"
-            @click="openWhatsApp('business')"
-          >
-            <Icon name="lucide:building-2" class="text-2xl" />
-            <span>Open in WhatsApp Business</span>
-          </UButton>
-
-          <UButton
-            size="lg"
-            variant="soft"
-            color="gray"
-            class="w-full flex items-center justify-center gap-2 font-medium py-2.5 rounded-lg"
-            @click="openWhatsApp('web')"
-          >
-            <Icon name="lucide:globe" class="text-xl" />
-            <span>Open in WhatsApp Web (Browser)</span>
-          </UButton>
-
-          <button
-            type="button"
-            class="text-xs text-gray-400 hover:text-gray-600 underline pt-2 cursor-pointer"
-            @click="openWhatsApp('default')"
-          >
-            Use Default Link (wa.me)
-          </button>
         </div>
       </div>
     </UModal>
