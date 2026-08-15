@@ -70,6 +70,17 @@ function isItemAvailable(item) {
   return true
 }
 
+function allowItemNote(item) {
+  if (!item) return true
+  if (item.allow_note !== undefined && item.allow_note !== null) {
+    return Boolean(Number(item.allow_note))
+  }
+  if (item.has_note !== undefined && item.has_note !== null) {
+    return Boolean(Number(item.has_note))
+  }
+  return true
+}
+
 function submit(item, quantity, price, key) {
   loading.value = true
   if (quantity < 1) {
@@ -140,8 +151,8 @@ function isInCart(itemName) {
         </div>
         <div class="flex flex-col justify-between mt-2">
           <div>
-            <div class="text-base font-semibold text-[#253D4E] flex items-center justify-between gap-2">
-              <span class="truncate">{{ item.name }}</span>
+            <div class="text-base font-semibold text-[#253D4E] flex items-center justify-between gap-2 min-w-0">
+              <span class="break-all leading-tight min-w-0">{{ item.name }}</span>
             </div>
             <div v-if="item.description" class="text-sm font-medium py-1.5 text-gray-500 line-clamp-2">
               {{ item.description }}
@@ -166,7 +177,7 @@ function isInCart(itemName) {
             </div>
 
             <!-- Item Note / Special Instructions -->
-            <div class="mt-1">
+            <div v-if="allowItemNote(item)" class="mt-1">
               <label class="block text-[11px] font-semibold text-gray-500 mb-1">
                 Note / Special Instructions:
               </label>

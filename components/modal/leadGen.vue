@@ -139,8 +139,11 @@ function generateMessage(data) {
     message += `   - Price: ${cartStore.getCurrency}${Number(item.totalPrice).toFixed(2)}\n\n`
   })
   
-  message += `*Total Price: ${cartStore.getCurrency}${Number(data.total_price).toFixed(2)}*\n\n`
-  message += 'Please confirm the order. Thank you!'
+  message += `*Total Price: ${cartStore.getCurrency}${Number(data.total_price).toFixed(2)}*\n`
+  if (props.shopDetails?.courier_charge_extra === 1 || props.shopDetails?.courier_charge_extra === true) {
+    message += `_*Courier / Delivery Charges:* Extra_\n`
+  }
+  message += `\nPlease confirm the order. Thank you!`
   return message
 }
 
@@ -224,6 +227,12 @@ function handleSlotClick() {
               <div class="font-bold text-gray-900 font-mono">
                 {{ cartStore.getCurrency }} {{ Number(cartStore.totalAmount).toFixed(2) }}
               </div>
+            </div>
+
+            <!-- Extra Courier Charge Notice -->
+            <div v-if="props.shopDetails?.courier_charge_extra === 1 || props.shopDetails?.courier_charge_extra === true" class="mt-2 text-xs bg-amber-50 text-amber-900 border border-amber-200 rounded-lg p-2 flex items-center gap-1.5 font-medium">
+              <Icon name="lucide:truck" class="shrink-0 text-amber-600 text-sm" />
+              <span>Courier / Delivery charges will be extra for this order.</span>
             </div>
           </div>
           

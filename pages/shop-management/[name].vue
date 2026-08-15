@@ -445,8 +445,8 @@ onMounted(() => {
                 <img :src="item.image_name" class="object-cover rounded-md w-full h-full max-h-[180px] object-center" alt="">
               </div>
 
-              <div class="flex flex-col gap-1.5 justify-between w-full mt-2 flex-grow">
-                <div v-if="item.name" class="text-base font-bold truncate max-w-[200px] text-gray-900">
+              <div class="flex flex-col gap-1.5 justify-between w-full mt-2 flex-grow min-w-0">
+                <div v-if="item.name" class="text-base font-bold break-all leading-tight text-gray-900 min-w-0">
                   {{ item.name }}
                 </div>
                 

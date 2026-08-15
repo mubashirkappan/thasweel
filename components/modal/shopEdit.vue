@@ -22,6 +22,7 @@ const state = reactive({
   email: undefined,
   logo_name: null,
   delivery: false,
+  courier_charge_extra: false,
   km: null,
   place_id: null,
   take_away: false,
@@ -30,6 +31,7 @@ const state = reactive({
 })
 
 watch(() => props.data, (newData) => {
+  if (!newData) return
   state.name = newData.name
   state.username = newData.slug
   state.address = newData.address
@@ -38,8 +40,9 @@ watch(() => props.data, (newData) => {
   state.countryCode = newData.country_code
   state.email = newData.email
   state.delivery = (newData.delivery === 1)
-  state.km = newData.km
-  state.free_delivery_above = newData.free_delivery_above || 0
+  state.courier_charge_extra = newData.courier_charge_extra === 1 || newData.courier_charge_extra === true
+  state.km = newData.km !== undefined && newData.km !== null ? newData.km : null
+  state.free_delivery_above = newData.free_delivery_above !== undefined && newData.free_delivery_above !== null ? newData.free_delivery_above : null
   state.logo_name = null
   state.place_id = newData.place_id
   state.enc_id = newData.encrypt_id
@@ -60,8 +63,9 @@ const schema = z.object({
   email: z.preprocess(val => val === '' ? undefined : val, z.string().email('Invalid email')),
   logo_name: z.any().optional(),
   delivery: z.boolean(),
-  free_delivery_above: z.number(),
-  km: z.number(), // take_away: z.boolean(),
+  courier_charge_extra: z.boolean().optional(),
+  free_delivery_above: z.number().nullable().optional(),
+  km: z.number().nullable().optional(), // take_away: z.boolean(),
 })
 
 const authStatus = useAuth()
@@ -117,9 +121,10 @@ async function submit() {
   formData.append('encrypted_id', state.enc_id)
   formData.append('place_id', state.place_id)
   formData.append('delivery', state.delivery ? 1 : 0)
-  formData.append('km', state.km || 0)
+  formData.append('courier_charge_extra', state.courier_charge_extra ? 1 : 0)
+  formData.append('km', state.km !== null && state.km !== undefined && state.km !== '' ? state.km : '')
   formData.append('take_away', state.take_away ? 1 : 1)
-  formData.append('free_delivery_above', state.delivery === true ? state.free_delivery_above : 0)
+  formData.append('free_delivery_above', state.delivery === true && state.free_delivery_above !== null && state.free_delivery_above !== undefined && state.free_delivery_above !== '' ? state.free_delivery_above : '')
   formData.append('type_id', 1)
   loading.value = true
 
@@ -220,11 +225,14 @@ onMounted(() => {
         <UFormGroup label="Delivery" name="delivery">
           <UToggle v-model="state.delivery" />
         </UFormGroup>
-        <UFormGroup v-if="state.delivery" label="Radius that you can Delivery" name="km">
-          <UInput v-model="state.km" type="number" />
+        <UFormGroup label="Courier Charge Extra" description="Enable if courier / delivery charges apply extra to orders" name="courier_charge_extra">
+          <UToggle v-model="state.courier_charge_extra" />
         </UFormGroup>
-        <UFormGroup v-if="state.delivery" label="Minimum amount Needed to free Delivery" description="If its fully free make it 0" name="free_delivery_above">
-          <UInput v-model="state.free_delivery_above" type="number" />
+        <UFormGroup v-if="state.delivery" label="Radius that you can Delivery (KM)" description="Optional / Leave empty if not applicable" name="km">
+          <UInput v-model="state.km" type="number" placeholder="Optional" />
+        </UFormGroup>
+        <UFormGroup v-if="state.delivery" label="Minimum amount Needed to free Delivery" description="Optional / Leave empty if not applicable" name="free_delivery_above">
+          <UInput v-model="state.free_delivery_above" type="number" placeholder="Optional" />
         </UFormGroup>
         <!-- <UFormGroup label="Take Away" name="take_away">
           <UToggle v-model="state.take_away" disabled />

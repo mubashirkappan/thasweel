@@ -43,6 +43,7 @@ const state = reactive({
   image: null,
   active: true,
   offer: false,
+  allow_note: true,
   amount: undefined,
 })
 const schema = z.object({
@@ -53,6 +54,7 @@ const schema = z.object({
   count: z.number(),
   active: z.boolean(),
   offer: z.boolean(),
+  allow_note: z.boolean().optional(),
 }).refine(data => data.dibi_price <= data.price, {
   message: 'dibi_price should be equal to or lower than price',
   path: ['dibi_price'],
@@ -77,7 +79,8 @@ const initialState = {
   image: null,
   category_id: null,
   active: true,
-  offer: false
+  offer: false,
+  allow_note: true
 }
 async function submit() {
   const constructedUnit = state.unit_type === 'custom'
@@ -97,6 +100,7 @@ async function submit() {
   formData.append('category_id', state.category_id)
   formData.append('active', state.active ? 1 : 0)
   formData.append('offer', state.offer ? 1 : 0)
+  formData.append('allow_note', state.allow_note ? 1 : 0)
 
   loading.value = true
 
@@ -186,8 +190,8 @@ async function submit() {
         <UFormGroup label="Active" name="active">
           <UToggle v-model="state.active" />
         </UFormGroup>
-        <UFormGroup label="Offer" name="Offer">
-          <UToggle v-model="state.offer" />
+        <UFormGroup label="Allow Customer Note / Special Instructions" name="allow_note">
+          <UToggle v-model="state.allow_note" />
         </UFormGroup>
         <UButton
           type="submit"

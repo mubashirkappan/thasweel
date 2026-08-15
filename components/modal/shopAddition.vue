@@ -18,10 +18,11 @@ const state = reactive({
   email: undefined,
   logo: null,
   delivery: false,
-  km: 0,
+  courier_charge_extra: false,
+  km: null,
   place_id: undefined,
   take_away: true,
-  above_limit: 0,
+  above_limit: null,
   is_owner: false,
 })
 
@@ -41,8 +42,9 @@ const schema = z.object({
   email: z.preprocess(val => val === '' ? undefined : val, z.string().email('Invalid email')),
   logo: z.any().optional(),
   delivery: z.boolean(),
-  above_limit: z.number(),
-  km: z.number(),
+  courier_charge_extra: z.boolean().optional(),
+  above_limit: z.number().nullable().optional(),
+  km: z.number().nullable().optional(),
   take_away: z.boolean(),
 })
 
@@ -93,9 +95,10 @@ async function submit() {
   formData.append('logo', state.logo)
   formData.append('place_id', state.place_id)
   formData.append('delivery', state.delivery ? 1 : 0)
-  formData.append('km', state.km || 0)
+  formData.append('courier_charge_extra', state.courier_charge_extra ? 1 : 0)
+  formData.append('km', state.km !== null && state.km !== undefined && state.km !== '' ? state.km : '')
   formData.append('take_away', state.take_away ? 1 : 0)
-  formData.append('free_delivery_above', state.delivery === true ? state.above_limit : 0)
+  formData.append('free_delivery_above', state.delivery === true && state.above_limit !== null && state.above_limit !== undefined && state.above_limit !== '' ? state.above_limit : '')
   formData.append('type_id', 1)
 
   loading.value = true
@@ -188,11 +191,14 @@ onMounted(() => {
         <UFormGroup label="Delivery" name="delivery">
           <UToggle v-model="state.delivery" />
         </UFormGroup>
-        <UFormGroup v-if="state.delivery" label="Radius that you can Delivery" description="If its  free make it 0" name="km">
-          <UInput v-model="state.km" type="number" />
+        <UFormGroup label="Courier Charge Extra" description="Enable if courier / delivery charges apply extra to orders" name="courier_charge_extra">
+          <UToggle v-model="state.courier_charge_extra" />
         </UFormGroup>
-        <UFormGroup v-if="state.delivery" label="Minimum amount Needed to free Delivery" description="If its fully free make it 0" name="above_limit">
-          <UInput v-model="state.above_limit"  type="number" />
+        <UFormGroup v-if="state.delivery" label="Delivery Radius (KM)" description="Delivery distance in KM (Optional)" name="km">
+          <UInput v-model="state.km" type="number" placeholder="Optional" />
+        </UFormGroup>
+        <UFormGroup v-if="state.delivery" label="Minimum Amount for Free Delivery" description="Minimum order total required for free delivery (Optional)" name="above_limit">
+          <UInput v-model="state.above_limit" type="number" placeholder="Optional" />
         </UFormGroup>
         <UFormGroup label="Take Away" name="take_away">
           <UToggle v-model="state.take_away" />
