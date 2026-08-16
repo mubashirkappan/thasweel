@@ -3,11 +3,25 @@ import { useCartStore } from '/composables/cartData'
 
 const cartStore = useCartStore()
 
-defineProps({
+const props = defineProps({
   item: Object,
-
 })
 
+const isTakeaway = computed(() => {
+  if (!props.item) return false
+  const s = props.item
+  return (
+    s.take_away === 1 ||
+    s.take_away === true ||
+    s.take_away === '1' ||
+    s.takeaway === 1 ||
+    s.takeaway === true ||
+    s.takeaway === '1' ||
+    s.delivery === 0 ||
+    s.delivery === '0' ||
+    s.delivery === false
+  )
+})
 </script>
 
 <template>
@@ -54,7 +68,7 @@ defineProps({
         </div>
       </div>
       <div v-else class="flex flex-col items-center justify-center w-full gap-2 text-sm md:text-base text-center">
-        <div>
+        <div v-if="isTakeaway">
           Take Away Only
         </div>
         <div v-if="item.courier_charge_extra === 1 || item.courier_charge_extra === true">
