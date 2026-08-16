@@ -13,13 +13,7 @@ const isTakeaway = computed(() => {
   return (
     s.take_away === 1 ||
     s.take_away === true ||
-    s.take_away === '1' ||
-    s.takeaway === 1 ||
-    s.takeaway === true ||
-    s.takeaway === '1' ||
-    s.delivery === 0 ||
-    s.delivery === '0' ||
-    s.delivery === false
+    s.take_away === '1'
   )
 })
 </script>
