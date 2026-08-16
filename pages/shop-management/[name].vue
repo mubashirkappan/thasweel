@@ -446,7 +446,7 @@ onMounted(() => {
               </div>
 
               <div class="flex flex-col gap-1.5 justify-between w-full mt-2 flex-grow min-w-0">
-                <div v-if="item.name" class="text-base font-bold break-all leading-tight text-gray-900 min-w-0">
+                <div v-if="item.name" class="text-base font-bold break-words leading-tight text-gray-900 min-w-0">
                   {{ item.name }}
                 </div>
                 

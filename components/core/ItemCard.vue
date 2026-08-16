@@ -152,7 +152,7 @@ function isInCart(itemName) {
         <div class="flex flex-col justify-between mt-2">
           <div>
             <div class="text-base font-semibold text-[#253D4E] flex items-center justify-between gap-2 min-w-0">
-              <span class="break-all leading-tight min-w-0">{{ item.name }}</span>
+              <span class="break-words leading-tight min-w-0">{{ item.name }}</span>
             </div>
             <div v-if="item.description" class="text-sm font-medium py-1.5 text-gray-500 line-clamp-2">
               {{ item.description }}
