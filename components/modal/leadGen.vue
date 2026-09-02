@@ -2,6 +2,7 @@
 import { z } from 'zod'
 import { useCartStore } from '/composables/cartData'
 import { watchEffect } from 'vue'
+import { useI18n } from '~/composables/useI18n'
 
 const props = defineProps({
   custom: {
@@ -17,6 +18,7 @@ const props = defineProps({
 })
 
 const cartStore = useCartStore()
+const { t } = useI18n()
 
 watchEffect(() => {
   if (props.shopDetails?.id) {
@@ -34,11 +36,11 @@ const state = reactive({
   deliveryDate: undefined
 })
 
-const schema = z.object({
-  phoneNumber: z.string().min(5, 'Invalid phone number'),
-  name: z.string().min(2, 'Must be at least 2 characters'),
+const schema = computed(() => z.object({
+  phoneNumber: z.string().min(5, t('invalid_phone')),
+  name: z.string().min(2, t('name_min_len')),
   address: z.string().nullish(),
-})
+}))
 
 const loading = ref(false)
 const toast = useToast()
@@ -83,7 +85,7 @@ function submit() {
     body,
   })
     .then((response) => {
-      toast.add({ title: response.message || 'Order placed successfully', icon: 'i-heroicons-check-badge', color: 'green' })
+      toast.add({ title: response.message || t('order_success'), icon: 'i-heroicons-check-badge', color: 'green' })
       const message = generateMessage(body)
       leadGen.value = false
     
@@ -173,18 +175,18 @@ function handleSlotClick() {
           color="gray"
           variant="ghost"
           icon="i-heroicons-x-mark-20-solid"
-          class="-my-1 absolute top-2 right-1"
+          class="-my-1 absolute top-2 right-1 rtl:right-auto rtl:left-1"
           @click="leadGen = false"
         />
         <div class="py-2 text-xl md:text-3xl text-center font-bold">
-          Check Out
+          {{ t('check_out') }}
         </div>
         
         <div class="grid md:grid-cols-2 gap-3 md:gap-10">
           <!-- Items Column -->
           <div class="border border-red-500 rounded-xl p-4 md:my-3">
             <div class="text-lg md:text-xl font-semibold mb-2">
-              Items List
+              {{ t('items_list') }}
             </div>
             
             <!-- Scrollable Items Container Wrapper -->
@@ -207,13 +209,13 @@ function handleSlotClick() {
                 <!-- Preferences & Notes Preview -->
                 <div v-if="item.preparation_preference || item.item_note" class="text-xs text-gray-600 flex flex-col gap-0.5 pl-2 border-l-2 border-primary/40 mt-1">
                   <span v-if="item.preparation_preference === 'single_combined'" class="text-purple-700 font-medium">
-                    Pref: One {{ item.name || 'item' }} with total weight
+                    {{ t('pref_combined', { name: item.name || 'item' }) }}
                   </span>
                   <span v-else-if="item.quantity > 1 && item.preparation_preference === 'separate'" class="text-amber-700 font-medium">
-                    Pref: {{ item.quantity }} Separate Items
+                    {{ t('pref_separate', { count: item.quantity }) }}
                   </span>
                   <span v-if="item.item_note" class="italic text-gray-500">
-                    Note: {{ item.item_note }}
+                    {{ t('note_prefix') }} {{ item.item_note }}
                   </span>
                 </div>
               </div>
@@ -223,7 +225,7 @@ function handleSlotClick() {
             
             <!-- Grand Total Block -->
             <div class="flex justify-between w-full pt-1 text-sm md:text-base">
-              <span class="font-semibold text-gray-900">Total</span>
+              <span class="font-semibold text-gray-900">{{ t('total') }}</span>
               <div class="font-bold text-gray-900 font-mono">
                 {{ cartStore.getCurrency }} {{ Number(cartStore.totalAmount).toFixed(2) }}
               </div>
@@ -232,30 +234,30 @@ function handleSlotClick() {
             <!-- Extra Courier Charge Notice -->
             <div v-if="props.shopDetails?.courier_charge_extra === 1 || props.shopDetails?.courier_charge_extra === true" class="mt-2 text-xs bg-amber-50 text-amber-900 border border-amber-200 rounded-lg p-2 flex items-center gap-1.5 font-medium">
               <Icon name="lucide:truck" class="shrink-0 text-amber-600 text-sm" />
-              <span>Courier / Delivery charges will be extra for this order.</span>
+              <span>{{ t('courier_notice_checkout') }}</span>
             </div>
           </div>
           
           <!-- Form Column -->
           <div class="border border-red-500 rounded-xl p-4 md:my-3 flex flex-col items-center justify-center">
             <UForm :state="state" class="space-y-4 flex items-center justify-center flex-col w-full" :schema="schema" @submit="submit">
-              <UFormGroup label="Phone Number" required name="phoneNumber" class="w-full">
+              <UFormGroup :label="t('phone_number')" required name="phoneNumber" class="w-full">
                 <UInput v-model="state.phoneNumber" v-maska:unmaskedPhone.unmasked="'##-###-#####'" />
               </UFormGroup>
-              <UFormGroup label="Name" required name="name" class="w-full">
+              <UFormGroup :label="t('name')" required name="name" class="w-full">
                 <UInput v-model="state.name" />
               </UFormGroup>
-              <UFormGroup label="Address" name="address" class="w-full">
+              <UFormGroup :label="t('address')" name="address" class="w-full">
                 <UInput v-model="state.address" />
               </UFormGroup>
-              <UFormGroup label="Delivery Date & Time" name="deliveryDate" class="w-full">
+              <UFormGroup :label="t('delivery_date_time')" name="deliveryDate" class="w-full">
                 <UInput 
                   v-model="state.deliveryDate" 
                   type="datetime-local" 
                   :min="new Date().toISOString().slice(0, 16)"
                 />
               </UFormGroup>
-              <UButton label="Buy Now and Send Message" :loading size="xl" class="self-end" type="submit" />
+              <UButton :label="t('buy_now_whatsapp')" :loading size="xl" class="self-end" type="submit" />
             </UForm>
           </div>
         </div>
