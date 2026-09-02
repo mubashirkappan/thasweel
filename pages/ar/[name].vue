@@ -12,6 +12,7 @@ const config = useRuntimeConfig()
 const route = useRoute()
 const { t, syncLocaleFromRoute } = useI18n()
 
+// Force Arabic locale sync for /ar/[name] route
 onMounted(() => {
   syncLocaleFromRoute()
 })
@@ -27,7 +28,7 @@ const selectedCategory = ref(null)
 const selectedKeyword = ref(null)
 
 let data
-async function fetchShops(query) {
+async function fetchShops(query: string) {
   loading.value = true
   try {
     const response = await fetch(
@@ -39,7 +40,6 @@ async function fetchShops(query) {
     
     data = await response.json()
 
-    // Check if shop exists in response data
     if (!data?.data || data.data.length === 0 || !data.data[0]) {
       throw new Error('Shop not found')
     }
@@ -49,11 +49,10 @@ async function fetchShops(query) {
     itemList.value = data.data[0]?.items
     categoryList.value = data.data[0]?.categorys
 
-    // Only fetch items and images if shop details are fully loaded
     await fetchItems()
     await fetchImagesList()
   }
-  catch (error) {
+  catch (error: any) {
     toast.add({
       title: error.message || 'Error loading shop',
       color: 'red',
@@ -86,7 +85,7 @@ async function fetchItems() {
     })
     listing.value = response?.data
   }
-  catch (error) {
+  catch (error: any) {
     const errorMsg = error?.data?.message || error.message
     toast.add({
       title: errorMsg,
@@ -114,7 +113,7 @@ async function fetchImagesList() {
     if (response?.data) {
       fetchedImages.value = response.data
     }
-  } catch (error) {
+  } catch (error: any) {
     const data = error?.data
     if (data?.message) {
       toast.add({

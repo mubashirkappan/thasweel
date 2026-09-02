@@ -1,5 +1,6 @@
 <script setup>
 import { useCartStore } from '/composables/cartData'
+import { useI18n } from '~/composables/useI18n'
 
 const props = defineProps({
   data: Object,
@@ -7,6 +8,7 @@ const props = defineProps({
 })
 
 const cartStore = useCartStore()
+const { t } = useI18n()
 const loading = ref(false)
 const toast = useToast()
 const count = ref({})
@@ -84,7 +86,7 @@ function allowItemNote(item) {
 function submit(item, quantity, price, key) {
   loading.value = true
   if (quantity < 1) {
-    toast.add({ timeout: 1500, title: 'Cart item count must be greater than or equal to 1', color: 'red', icon: 'i-heroicons-x-circle' })
+    toast.add({ timeout: 1500, title: t('min_quantity_error'), color: 'red', icon: 'i-heroicons-x-circle' })
     loading.value = false
     return
   }
@@ -95,12 +97,12 @@ function submit(item, quantity, price, key) {
 
   if (stockLimit !== null && stockLimit !== undefined) {
     if (Number(stockLimit) <= 0) {
-      toast.add({ timeout: 1500, title: 'Item is out of stock', color: 'red', icon: 'i-heroicons-x-circle' })
+      toast.add({ timeout: 1500, title: t('out_of_stock'), color: 'red', icon: 'i-heroicons-x-circle' })
       loading.value = false
       return
     }
     if (quantity > Number(stockLimit)) {
-      toast.add({ timeout: 1500, title: `Only ${stockLimit} item(s) available in stock`, color: 'red', icon: 'i-heroicons-x-circle' })
+      toast.add({ timeout: 1500, title: t('stock_limit_error', { count: stockLimit }), color: 'red', icon: 'i-heroicons-x-circle' })
       loading.value = false
       return
     }
@@ -113,7 +115,7 @@ function submit(item, quantity, price, key) {
 
   if (existingItem) {
     if (existingItem.count === quantity && existingItem.preparation_preference === pref && existingItem.item_note === note) {
-      toast.add({ timeout: 1500, title: 'Item already in cart with same preferences', color: 'red', icon: 'i-heroicons-x-circle' })
+      toast.add({ timeout: 1500, title: t('same_pref_error'), color: 'red', icon: 'i-heroicons-x-circle' })
       loading.value = false
       return
     }
@@ -122,16 +124,16 @@ function submit(item, quantity, price, key) {
   cartStore.addItem(item.name, quantity, price, props.shopId, unit, pref, note)
   
   if (existingItem)
-    toast.add({ timeout: 1500, title: 'Cart updated', color: 'green', icon: 'i-heroicons-check-badge' })
+    toast.add({ timeout: 1500, title: t('cart_updated'), color: 'green', icon: 'i-heroicons-check-badge' })
   else
-    toast.add({ timeout: 1500, title: 'Item added to cart', color: 'green', icon: 'i-heroicons-check-badge' })
+    toast.add({ timeout: 1500, title: t('item_added'), color: 'green', icon: 'i-heroicons-check-badge' })
   
   loading.value = false
 }
 
 function removeItem(itemName) {
   cartStore.removeItem(itemName)
-  toast.add({ timeout: 1500, title: 'Item removed from cart', color: 'green', icon: 'i-heroicons-check-badge' })
+  toast.add({ timeout: 1500, title: t('item_removed'), color: 'green', icon: 'i-heroicons-check-badge' })
 }
 
 function isInCart(itemName) {
@@ -163,15 +165,15 @@ function isInCart(itemName) {
 
             <!-- Preparation Choice for Quantity > 1 (Weight-based items only) -->
             <div v-if="count[key] > 1 && isWeightBased(item)" class="bg-amber-50/80 border border-amber-200 rounded-lg p-2.5 text-xs space-y-1.5">
-              <span class="font-bold text-amber-900 block">Fulfillment Preference:</span>
+              <span class="font-bold text-amber-900 block">{{ t('fulfillment_preference') }}</span>
               <div class="flex flex-col gap-1 text-gray-700">
                 <label class="flex items-center gap-1.5 cursor-pointer">
                   <input type="radio" :name="`pref-${item.id}`" value="separate" v-model="preparationPref[key]" class="text-primary focus:ring-primary">
-                  <span>{{ count[key] }} separate {{ getItemUnitLabel(item) }} items</span>
+                  <span>{{ t('separate_items', { count: count[key], unit: getItemUnitLabel(item) }) }}</span>
                 </label>
                 <label class="flex items-center gap-1.5 cursor-pointer">
                   <input type="radio" :name="`pref-${item.id}`" value="single_combined" v-model="preparationPref[key]" class="text-primary focus:ring-primary">
-                  <span class="font-semibold text-primary">One {{ item.name || 'item' }} with total weight</span>
+                  <span class="font-semibold text-primary">{{ t('one_item_total_weight', { name: item.name || 'item' }) }}</span>
                 </label>
               </div>
             </div>
@@ -179,12 +181,12 @@ function isInCart(itemName) {
             <!-- Item Note / Special Instructions -->
             <div v-if="allowItemNote(item)" class="mt-1">
               <label class="block text-[11px] font-semibold text-gray-500 mb-1">
-                Note / Special Instructions:
+                {{ t('note_instructions') }}
               </label>
               <input
                 v-model="itemNote[key]"
                 type="text"
-                placeholder="e.g. less sugar, extra sauce"
+                :placeholder="t('note_placeholder')"
                 class="w-full px-2.5 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary text-gray-700 bg-gray-50/50"
               />
             </div>
@@ -214,7 +216,7 @@ function isInCart(itemName) {
             @click="submit(item, count[key], item.db_price, key)"
           >
             <Icon name="lucide:shopping-cart" class="shrink-0 mr-1" />
-            <span class="truncate">Update Cart</span>
+            <span class="truncate">{{ t('update_cart') }}</span>
           </UButton>
           <UButton
             size="md"
@@ -224,7 +226,7 @@ function isInCart(itemName) {
             @click="removeItem(item.name)"
           >
             <Icon name="lucide:trash" class="shrink-0" />
-            <span class="hidden sm:inline ml-1">Delete</span>
+            <span class="hidden sm:inline ml-1">{{ t('delete') }}</span>
           </UButton>
         </div>
         <UButton
@@ -235,7 +237,7 @@ function isInCart(itemName) {
           @click="submit(item, count[key], item.db_price, key)"
         >
           <Icon name="lucide:shopping-cart" class="shrink-0 mr-1" />
-          <span>Add to cart</span>
+          <span>{{ t('add_to_cart') }}</span>
         </UButton>
       </div>
     </div>
