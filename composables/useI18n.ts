@@ -8,10 +8,20 @@ export function useI18n() {
   const route = useRoute()
   const router = useRouter()
 
-  // Sync locale based on route path
+  // Sync locale based on route path or parameters
   const syncLocaleFromRoute = (path?: string) => {
     const currentPath = path || route?.path || ''
-    if (currentPath.startsWith('/ar/') || currentPath === '/ar') {
+    const paramName = (route?.params?.name as string) || ''
+
+    if (
+      currentPath.startsWith('/ar/') ||
+      currentPath === '/ar' ||
+      currentPath.includes('/ar/') ||
+      paramName.startsWith('ar/') ||
+      paramName.startsWith('ar-') ||
+      paramName.startsWith('ar_') ||
+      paramName === 'ar'
+    ) {
       currentLocale.value = 'ar'
     } else {
       currentLocale.value = 'en'
@@ -46,10 +56,14 @@ export function useI18n() {
     updateDocumentDir()
 
     // Determine shop slug from argument or current route params
-    const slug = shopSlug || (route?.params?.name as string)
+    let rawSlug = shopSlug || (route?.params?.name as string) || ''
+    rawSlug = rawSlug.replace(/^(ar\/|\/ar\/|ar-|ar_)/i, '')
+    if (rawSlug.includes('/ar/')) {
+      rawSlug = rawSlug.split('/ar/').pop() || rawSlug
+    }
 
-    if (slug) {
-      const targetPath = newLocale === 'ar' ? `/ar/${slug}` : `/${slug}`
+    if (rawSlug) {
+      const targetPath = newLocale === 'ar' ? `/ar/${rawSlug}` : `/${rawSlug}`
       if (route && route.path !== targetPath) {
         router.push(targetPath)
       }
