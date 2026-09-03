@@ -9,6 +9,7 @@ export default {
   take_away_only: "Take Away Only",
 
   // Products Section & Search
+  select_product_categories: "Select Product Categories",
   products_available: "Products Available",
   search_placeholder: "Search for an item",
   no_items_found: "No items found",

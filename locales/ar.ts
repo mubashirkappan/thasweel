@@ -9,6 +9,7 @@ export default {
   take_away_only: "استلام من الفرع فقط",
 
   // Products Section & Search
+  select_product_categories: "اختر فئات المنتجات",
   products_available: "المنتجات المتاحة",
   search_placeholder: "البحث عن منتج...",
   no_items_found: "لم يتم العثور على منتجات",

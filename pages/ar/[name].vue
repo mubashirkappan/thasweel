@@ -31,23 +31,53 @@ let data
 async function fetchShops(query: string) {
   loading.value = true
   try {
-    const response = await fetch(
-      `${config.public.apiBaseUrl}/shops?shop=${query}&from=thasweel`,
-    )
+    const rawQuery = query ? query.replace(/\s+/g, '+') : ''
+    let resData: any = null
 
-    if (!response.ok)
-      throw new Error('Failed to list Shops')
-    
-    data = await response.json()
+    const cleaned = rawQuery.replace(/^(ar\/|\/ar\/|ar-|ar_)/i, '')
+    const withAr = `ar/${cleaned}`
 
-    if (!data?.data || data.data.length === 0 || !data.data[0]) {
+    // For /ar/[name] route, default to trying with 'ar/' prefix first, then fallback to cleaned
+    const primaryQuery = rawQuery.includes('ar/') ? rawQuery : withAr
+    const fallbackQuery = primaryQuery === withAr ? cleaned : withAr
+
+    // Try primary query first
+    try {
+      const response = await fetch(
+        `${config.public.apiBaseUrl}/shops?shop=${primaryQuery}&from=thasweel`,
+      )
+      if (response.ok) {
+        const json = await response.json()
+        if (json?.data && json.data.length > 0 && json.data[0]) {
+          resData = json
+        }
+      }
+    } catch (e) {
+      // fallback will be tried below
+    }
+
+    // Fallback if primary query yielded no shop
+    if (!resData?.data || resData.data.length === 0 || !resData.data[0]) {
+      const responseFallback = await fetch(
+        `${config.public.apiBaseUrl}/shops?shop=${fallbackQuery}&from=thasweel`,
+      )
+      if (responseFallback.ok) {
+        const jsonFallback = await responseFallback.json()
+        if (jsonFallback?.data && jsonFallback.data.length > 0 && jsonFallback.data[0]) {
+          resData = jsonFallback
+        }
+      }
+    }
+
+    if (!resData?.data || resData.data.length === 0 || !resData.data[0]) {
       throw new Error('Shop not found')
     }
 
-    shopDetail.value = data.data[0]
+    data = resData
+    shopDetail.value = resData.data[0]
     cartStore.setCurrency(shopDetail.value?.currency)
-    itemList.value = data.data[0]?.items
-    categoryList.value = data.data[0]?.categorys
+    itemList.value = resData.data[0]?.items
+    categoryList.value = resData.data[0]?.categorys
 
     await fetchItems()
     await fetchImagesList()
@@ -131,12 +161,21 @@ function reloadItems() {
   fetchItems()
 }
 
+function getCleanShopSlug(rawSlug: string): string {
+  if (!rawSlug) return ''
+  let cleaned = rawSlug.replace(/\s+/g, '+')
+  cleaned = cleaned.replace(/^(ar\/|\/ar\/|ar-|ar_)/i, '')
+  if (cleaned.includes('/ar/')) {
+    cleaned = cleaned.split('/ar/').pop() || cleaned
+  }
+  return cleaned
+}
+
 function getData() {
   if (!shop.value) {
     navigateTo('/shopList')
   }
   else {
-    shop.value = shop.value.replace(/\s+/g, '+')
     fetchShops(shop.value)
   }
 }

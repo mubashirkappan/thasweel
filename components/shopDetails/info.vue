@@ -22,11 +22,6 @@ const isTakeaway = computed(() => {
 
 <template>
   <div class="flex flex-col items-center justify-center md:min-h-[calc(100vh-200px)] p-4 relative">
-    <!-- Language Switcher in top right of shop header area -->
-    <div class="w-full max-w-[500px] md:max-w-4xl flex justify-end mb-2">
-      <ShopLanguageSwitcher :shop-slug="item.user_name || item.name" />
-    </div>
-
     <div class="flex flex-col items-center gap-5 max-md:border border-black rounded-lg p-2 max-md:w-full max-md:max-w-[500px]">
       <div class="flex flex-col items-center gap-4">
         <div class="max-h-[250px] max-w-[250px] h-full">
